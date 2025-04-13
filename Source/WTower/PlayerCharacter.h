@@ -50,7 +50,33 @@ protected:
 
     // Вспомогательный метод для воспроизведения звуков
     void PlayCharacterSound(USoundBase* Sound);
+    //----------------------------------------------------------------------------------------
+   // МЕТОДЫ ИГРОВОЙ СТАТИСТИКИ
+   //----------------------------------------------------------------------------------------
 
+   // Добавить очки игроку
+    UFUNCTION(BlueprintCallable, Category = "Игровая статистика")
+    void AddScore(int32 Points);
+
+    // Получить текущий счет игрока
+    UFUNCTION(BlueprintCallable, Category = "Игровая статистика")
+    int32 GetScore() const;
+
+    // Получить текущее время игры
+    UFUNCTION(BlueprintCallable, Category = "Игровая статистика")
+    float GetGameTime() const;
+
+    // Получить максимальную высоту игрока
+    UFUNCTION(BlueprintCallable, Category = "Игровая статистика")
+    float GetMaxHeight() const;
+
+    // Установить игру как завершенную
+    UFUNCTION(BlueprintCallable, Category = "Игровая статистика")
+    void CompleteGame();
+
+    // Обновить высоту персонажа в GameState
+    UFUNCTION(BlueprintCallable, Category = "Игровая статистика")
+    void UpdateHeight();
 public:
     // Компоненты камеры
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Камера")

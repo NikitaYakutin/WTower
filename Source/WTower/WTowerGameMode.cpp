@@ -1,8 +1,9 @@
-#include "WTowerGameMode.h"
+﻿#include "WTowerGameMode.h"
 #include "PlayerCharacter.h"
 #include "WTowerPlayerController.h"
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
+#include "WTowerGameState.h"
 #include "Kismet/GameplayStatics.h"
 
 AWTowerGameMode::AWTowerGameMode()
@@ -20,6 +21,8 @@ AWTowerGameMode::AWTowerGameMode()
     
     // Set default player controller class
     PlayerControllerClass = AWTowerPlayerController::StaticClass();
+    // Устанавливаем класс GameState на наш пользовательский класс
+    GameStateClass = AWTowerGameState::StaticClass();
 }
 
 void AWTowerGameMode::BeginPlay()
@@ -50,6 +53,7 @@ AActor* AWTowerGameMode::FindPlayerStart_Implementation(AController* Player, con
     // Log where we're spawning the player
     if (PlayerStart)
     {
+
         UE_LOG(LogTemp, Log, TEXT("Player spawning at %s"), *PlayerStart->GetName());
     }
     else

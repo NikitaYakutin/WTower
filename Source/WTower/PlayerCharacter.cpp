@@ -4,6 +4,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "WTowerGameState.h"
 #include "Kismet/GameplayStatics.h"
 
 //----------------------------------------------------------------------------------------
@@ -114,6 +115,7 @@ void APlayerCharacter::BeginPlay()
     }
 }
 
+// Добавьте вызов UpdateHeight в метод Tick персонажа:
 void APlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
@@ -124,8 +126,10 @@ void APlayerCharacter::Tick(float DeltaTime)
         FRotator ControlRotation = Controller->GetControlRotation();
         SetActorRotation(FRotator(0.0f, ControlRotation.Yaw, 0.0f));
     }
-}
 
+    // Обновляем высоту персонажа в GameState каждый кадр
+    UpdateHeight();
+}
 //----------------------------------------------------------------------------------------
 // НАСТРОЙКА ВВОДА
 //----------------------------------------------------------------------------------------
@@ -363,3 +367,65 @@ void APlayerCharacter::PlayCharacterSound(USoundBase* Sound)
         );
     }
 }
+
+//----------------------------------------------------------------------------------------
+// МЕТОДЫ ИГРОВОЙ СТАТИСТИКИ
+//----------------------------------------------------------------------------------------
+
+void APlayerCharacter::AddScore(int32 Points)
+{
+    // Получаем GameState и используем его методы
+    if (AWTowerGameState* GameState = Cast<AWTowerGameState>(GetWorld()->GetGameState()))
+    {
+        GameState->AddScore(Points);
+    }
+}
+
+int32 APlayerCharacter::GetScore() const
+{
+    // Получаем счет из GameState
+    if (AWTowerGameState* GameState = Cast<AWTowerGameState>(GetWorld()->GetGameState()))
+    {
+        return GameState->GetScore();
+    }
+    return 0;
+}
+
+float APlayerCharacter::GetGameTime() const
+{
+    // Получаем время игры из GameState
+    if (AWTowerGameState* GameState = Cast<AWTowerGameState>(GetWorld()->GetGameState()))
+    {
+        return GameState->GetGameTime();
+    }
+    return 0.0f;
+}
+
+float APlayerCharacter::GetMaxHeight() const
+{
+    // Получаем максимальную высоту из GameState
+    if (AWTowerGameState* GameState = Cast<AWTowerGameState>(GetWorld()->GetGameState()))
+    {
+        return GameState->GetPlayerMaxHeight();
+    }
+    return 0.0f;
+}
+
+void APlayerCharacter::CompleteGame()
+{
+    // Устанавливаем флаг завершения игры в GameState
+    if (AWTowerGameState* GameState = Cast<AWTowerGameState>(GetWorld()->GetGameState()))
+    {
+        GameState->SetGameCompleted();
+    }
+}
+
+void APlayerCharacter::UpdateHeight()
+{
+    // Обновляем текущую высоту персонажа в GameState
+    if (AWTowerGameState* GameState = Cast<AWTowerGameState>(GetWorld()->GetGameState()))
+    {
+        GameState->UpdatePlayerHeight(GetActorLocation().Z);
+    }
+}
+
