@@ -5,7 +5,7 @@
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class TOWER_API APlayerCharacter : public ACharacter
+class WTOWER_API APlayerCharacter : public ACharacter
 {
     GENERATED_BODY()
 
