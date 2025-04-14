@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
@@ -15,7 +15,7 @@ class WTOWER_API AWTowerPlayerController : public APlayerController
 public:
     // Constructor
     AWTowerPlayerController();
-    
+
     // Called when the controller possesses a pawn
     virtual void OnPossess(APawn* InPawn) override;
     

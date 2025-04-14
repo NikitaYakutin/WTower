@@ -5,6 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "WTowerGameState.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 //----------------------------------------------------------------------------------------
@@ -78,6 +79,10 @@ APlayerCharacter::APlayerCharacter()
     bUseControllerRotationPitch = false;
     bUseControllerRotationYaw = false;
     bUseControllerRotationRoll = false;
+    //----------------------------------------------------------------------------------------
+    // Усиления
+    //----------------------------------------------------------------------------------------
+
 }
 
 //----------------------------------------------------------------------------------------
@@ -113,6 +118,7 @@ void APlayerCharacter::BeginPlay()
     {
         CameraBoom->bUsePawnControlRotation = true;
     }
+
 }
 
 // Добавьте вызов UpdateHeight в метод Tick персонажа:
@@ -129,6 +135,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
     // Обновляем высоту персонажа в GameState каждый кадр
     UpdateHeight();
+  
 }
 //----------------------------------------------------------------------------------------
 // НАСТРОЙКА ВВОДА
@@ -429,3 +436,35 @@ void APlayerCharacter::UpdateHeight()
     }
 }
 
+
+//----------------------------------------------------------------------------------------
+// МЕТОДЫ УСИЛЕНИЙ
+//----------------------------------------------------------------------------------------
+// Добавьте в существующий файл PlayerCharacter.cpp
+
+void APlayerCharacter::DisplayActivePowerUp(EPowerUpType PowerUpType, float Duration)
+{
+    // Сохраняем информацию об активном усилении
+    ActivePowerUps.Add(PowerUpType, true);
+
+    // Если задана длительность, настраиваем таймер для отключения визуального эффекта
+    if (Duration > 0.0f)
+    {
+        FTimerHandle& TimerHandle = ActivePowerUpTimers.FindOrAdd(PowerUpType);
+
+        GetWorldTimerManager().ClearTimer(TimerHandle);
+        GetWorldTimerManager().SetTimer(
+            TimerHandle,
+            FTimerDelegate::CreateLambda([this, PowerUpType]() {
+                // По истечении таймера отмечаем усиление как неактивное
+                ActivePowerUps.Add(PowerUpType, false);
+
+                // UI обновление может быть вызвано здесь или через событие Blueprint
+                }),
+            Duration,
+            false
+        );
+    }
+
+    // UI обновление может быть вызвано здесь или через событие Blueprint
+}

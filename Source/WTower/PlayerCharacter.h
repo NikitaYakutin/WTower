@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "BasePowerUp.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -20,7 +21,7 @@ public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
     virtual void AddControllerYawInput(float Value) override;
     virtual void AddControllerPitchInput(float Value) override;
-protected:
+
     // Вызывается при начале игры
     virtual void BeginPlay() override;
 
@@ -50,6 +51,21 @@ protected:
 
     // Вспомогательный метод для воспроизведения звуков
     void PlayCharacterSound(USoundBase* Sound);
+    //----------------------------------------------------------------------------------------
+   // МЕТОДЫ УСИЛЕНИЙ
+   //----------------------------------------------------------------------------------------
+ // Метод для уведомления игрока об активации усиления
+    UFUNCTION(BlueprintImplementableEvent, Category = "Power-Ups")
+    void NotifyPowerUpActivated(EPowerUpType PowerUpType, float Duration);
+
+    // Метод для уведомления игрока о деактивации усиления
+    UFUNCTION(BlueprintImplementableEvent, Category = "Power-Ups")
+    void NotifyPowerUpDeactivated(EPowerUpType PowerUpType);
+
+    // Метод для включения визуального отображения активного усиления
+    UFUNCTION(BlueprintCallable, Category = "Power-Ups")
+    void DisplayActivePowerUp(EPowerUpType PowerUpType, float Duration);
+
     //----------------------------------------------------------------------------------------
    // МЕТОДЫ ИГРОВОЙ СТАТИСТИКИ
    //----------------------------------------------------------------------------------------
@@ -116,4 +132,15 @@ private:
     FRotator CameraRotation;
     FVector LastMovementInput;
     FVector GetDirectionFromCamera(EAxis::Type Axis) const;
+    //----------------------------------------------------------------------------------------
+// МЕТОДЫ УСИЛЕНИЙ
+//----------------------------------------------------------------------------------------
+
+        // Для хранения активных усилений и их таймеров
+    UPROPERTY()
+    TMap<EPowerUpType, FTimerHandle> ActivePowerUpTimers;
+
+    // Для отладки и UI, отслеживаем активные усиления
+    UPROPERTY()
+    TMap<EPowerUpType, bool> ActivePowerUps;
 };

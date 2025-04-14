@@ -1,5 +1,6 @@
-#include "WTowerPlayerController.h"
+﻿#include "WTowerPlayerController.h"
 #include "PlayerCharacter.h"
+#include "WTowerGameState.h"
 #include "GameFramework/PlayerInput.h"
 #include "Engine/World.h"
 
