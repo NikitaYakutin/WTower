@@ -16,7 +16,6 @@ APlayerCharacter::APlayerCharacter()
 {
     // Включаем Tick
     PrimaryActorTick.bCanEverTick = true;
-
     // Настраиваем капсулу столкновения
     GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
     GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
