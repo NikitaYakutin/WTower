@@ -35,7 +35,7 @@ ABasePlatform::ABasePlatform()
     PlatformType = EPlatformType::Normal;
     MovementRange = 200.0f;
     MovementSpeed = 100.0f;
-    MoveHorizontal = true;
+    MovementAxis = EPlatformMovementAxis::YAxis; // По умолчанию
     BreakDelay = 0.5f;
     BounceMultiplier = 1.5f;
     MovementDirection = 1.0f;
@@ -83,8 +83,24 @@ void ABasePlatform::MovePlatform(float DeltaTime)
 {
     FVector CurrentLocation = GetActorLocation();
 
-    // Определяем ось движения
-    FVector MovementAxis = MoveHorizontal ? FVector(0.0f, 1.0f, 0.0f) : FVector(1.0f, 0.0f, 0.0f);
+    // Определяем ось движения на основе выбранного значения
+    FVector DirectionVector;
+    switch (MovementAxis)
+    {
+    case EPlatformMovementAxis::XAxis:
+        DirectionVector = FVector(1.0f, 0.0f, 0.0f);
+        break;
+    case EPlatformMovementAxis::YAxis:
+        DirectionVector = FVector(0.0f, 1.0f, 0.0f);
+        break;
+    case EPlatformMovementAxis::ZAxis:
+        DirectionVector = FVector(0.0f, 0.0f, 1.0f);
+        break;
+    default:
+        DirectionVector = FVector(0.0f, 1.0f, 0.0f);
+        break;
+    }
+
 
     // Рассчитываем расстояние движения
     float Distance = FVector::Dist(CurrentLocation, InitialPosition);
@@ -96,7 +112,7 @@ void ABasePlatform::MovePlatform(float DeltaTime)
     }
 
     // Применяем движение
-    FVector NewLocation = CurrentLocation + MovementAxis * MovementSpeed * MovementDirection * DeltaTime;
+    FVector NewLocation = CurrentLocation + DirectionVector * MovementSpeed * MovementDirection * DeltaTime;
     SetActorLocation(NewLocation);
 }
 

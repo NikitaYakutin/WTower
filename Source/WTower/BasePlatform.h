@@ -18,6 +18,13 @@ enum class EPlatformType : uint8
     Breakable UMETA(DisplayName = "Breakable"),
     Bouncy UMETA(DisplayName = "Bouncy")
 };
+UENUM(BlueprintType)
+enum class EPlatformMovementAxis : uint8
+{
+    XAxis UMETA(DisplayName = "X Axis"),
+    YAxis UMETA(DisplayName = "Y Axis"),
+    ZAxis UMETA(DisplayName = "Z Axis (Vertical)")
+};
 
 UCLASS(Abstract, Blueprintable)
 class WTOWER_API ABasePlatform : public AActor
@@ -45,8 +52,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Platform|Movement")
     float MovementSpeed;
 
+    // Замените переменную MoveHorizontal
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Platform|Movement")
-    bool MoveHorizontal;
+    EPlatformMovementAxis MovementAxis;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Platform|Break")
     float BreakDelay;

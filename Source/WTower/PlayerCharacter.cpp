@@ -5,8 +5,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "WTowerGameState.h"
+#include "WTowerHUD.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "WTowerHUDWidget.h"
 
 //----------------------------------------------------------------------------------------
 // КОНСТРУКТОР И ИНИЦИАЛИЗАЦИЯ

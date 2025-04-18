@@ -173,6 +173,7 @@ void ABasePowerUp::UpdateVisuals()
 
 void ABasePowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
 {
+
     // Базовая реализация - ничего не делает
     // Этот метод переопределяется в конкретных усилениях
     UE_LOG(LogTemp, Warning, TEXT("Base power-up effect applied to %s"), *Target->GetName());

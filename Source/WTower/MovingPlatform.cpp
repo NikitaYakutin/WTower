@@ -31,8 +31,23 @@ void AMovingPlatform::MovePlatform(float DeltaTime)
     FVector CurrentLocation = GetActorLocation();
     FVector StartPosition = GetInitialPosition();
 
-    // Определяем ось движения
-    FVector MovementAxis = MoveHorizontal ? FVector(0.0f, 1.0f, 0.0f) : FVector(1.0f, 0.0f, 0.0f);
+    // Определяем ось движения на основе выбранного значения
+    FVector DirectionVector;
+    switch (MovementAxis)
+    {
+    case EPlatformMovementAxis::XAxis:
+        DirectionVector = FVector(1.0f, 0.0f, 0.0f);
+        break;
+    case EPlatformMovementAxis::YAxis:
+        DirectionVector = FVector(0.0f, 1.0f, 0.0f);
+        break;
+    case EPlatformMovementAxis::ZAxis:
+        DirectionVector = FVector(0.0f, 0.0f, 1.0f);
+        break;
+    default:
+        DirectionVector = FVector(0.0f, 1.0f, 0.0f);
+        break;
+    }
 
     // Вычисляем расстояние от начальной точки
     float Distance = FVector::Dist(CurrentLocation, StartPosition);
@@ -65,7 +80,7 @@ void AMovingPlatform::MovePlatform(float DeltaTime)
     }
 
     // Применяем движение
-    FVector NewLocation = CurrentLocation + MovementAxis * MovementSpeed * GetMovementDirection() * DeltaTime;
+    FVector NewLocation = CurrentLocation + DirectionVector * MovementSpeed * GetMovementDirection() * DeltaTime;
     SetActorLocation(NewLocation);
 }
 

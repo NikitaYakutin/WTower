@@ -39,7 +39,7 @@ void UWTowerHUDWidget::UpdateStats()
     // Обновляем время
     if (TimeText)
     {
-        TimeText->SetText(FText::FromString(FString::Printf(TEXT("Время: %s"), *FormatTime(180.0f-(GameState->GetGameTime())  ))));
+        TimeText->SetText(FText::FromString(FString::Printf(TEXT("Время: %s"), *FormatTime(180.0f - (GameState->GetGameTime())))));
     }
 
     // Обновляем текущую высоту
@@ -59,6 +59,6 @@ FString UWTowerHUDWidget::FormatTime(float TimeInSeconds) const
 {
     int32 Minutes = FMath::FloorToInt(TimeInSeconds / 60.0f);
     int32 Seconds = FMath::FloorToInt(TimeInSeconds) % 60;
-    
+
     return FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 }

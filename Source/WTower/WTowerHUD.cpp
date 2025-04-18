@@ -21,8 +21,8 @@ void AWTowerHUD::BeginPlay()
     APlayerController* PC = GetWorld()->GetFirstPlayerController();
     if (HUDWidgetClass && PC)
     {
-   
-        if (PC )
+
+        if (PC)
         {
             CurrentHUDWidget = CreateWidget<UUserWidget>(PC, HUDWidgetClass);
             if (CurrentHUDWidget)
