@@ -6,7 +6,7 @@
 #include "WTowerGameState.h"
 #include "WTowerHUD.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "WTowerGameInstance.h"
 AWTowerGameMode::AWTowerGameMode()
 {
     // Set default pawn class to our player character
@@ -163,4 +163,9 @@ void AWTowerGameMode::EndGameWithDefeat(FString Reason)
 
     // Здесь можно добавить код для показа экрана поражения,
     // воспроизведения звуков, анимаций и т.д.
+}
+// Добавить в конец файла
+UWTowerGameInstance* AWTowerGameMode::GetWTowerGameInstance() const
+{
+    return Cast<UWTowerGameInstance>(GetGameInstance());
 }

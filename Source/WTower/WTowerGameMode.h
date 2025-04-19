@@ -58,4 +58,7 @@ public:
 private:
     // Переменные состояния игры
     bool bGameEnded;
+    // Получить ссылку на WTowerGameInstance
+    UFUNCTION(BlueprintCallable, Category = "Game Flow")
+    UWTowerGameInstance* GetWTowerGameInstance() const;
 };
