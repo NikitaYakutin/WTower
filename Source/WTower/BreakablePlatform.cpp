@@ -2,6 +2,7 @@
 #include "BreakablePlatform.h"
 #include "PlayerCharacter.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include <Kismet/GameplayStatics.h>
 
 ABreakablePlatform::ABreakablePlatform()
 {
@@ -40,6 +41,11 @@ void ABreakablePlatform::ActivatePlatform(AActor* Activator)
     // Визуальная индикация начала разрушения
     if (PlatformMesh)
     {
+        AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+        if (AudioManager)
+        {
+            AudioManager->PlaySoundAtLocation(BreakSound, GetActorLocation());;
+        }
         UMaterialInstanceDynamic* DynMaterial = Cast<UMaterialInstanceDynamic>(PlatformMesh->GetMaterial(0));
         if (!DynMaterial)
         {

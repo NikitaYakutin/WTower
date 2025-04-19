@@ -4,7 +4,7 @@
 #include "Engine/GameInstance.h"
 #include "SaveGame/WTowerSaveGame.h"
 #include "Config/WTowerGameConfig.h"
-#include "Audio/WAudioManager.h"
+#include "Audio/WAudioManagerActor.h"
 #include "WTowerGameInstance.generated.h"
 
 /**
@@ -83,9 +83,7 @@ public:
     // АУДИО
     //----------------------------------------------------------------------------------------
     
-    // Получить аудио менеджер
-    UFUNCTION(BlueprintCallable, Category = "Аудио")
-    UWAudioManager* GetAudioManager() const { return AudioManager; }
+
     
     //----------------------------------------------------------------------------------------
     // РЕКОРДЫ
@@ -117,8 +115,8 @@ private:
     UWTowerGameConfig* GameConfig;
     
     // Аудио менеджер
-    UPROPERTY()
-    UWAudioManager* AudioManager;
+    UFUNCTION(BlueprintCallable, Category = "Аудио")
+    AWAudioManagerActor* GetAudioManager() const;
     
     // Путь к папке с настройками
     FString ConfigFolder;

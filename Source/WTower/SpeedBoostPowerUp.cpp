@@ -48,21 +48,37 @@ void ASpeedBoostPowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
         );
     }
 
+    // Сохраняем позицию и звук для использования в лямбде
+    FVector EffectLocation = GetActorLocation();
+    USoundBase* SoundToPlay = ExpireSound; // Новая строка
+
     // Через определенное время восстанавливаем исходное значение
     FTimerHandle TimerHandle;
     FTimerDelegate TimerDelegate;
-    
-    TimerDelegate.BindLambda([MovementComp, OriginalSpeed, SpeedEffect]() {
+
+    TimerDelegate.BindLambda([MovementComp, OriginalSpeed, SpeedEffect, Character, SoundToPlay, EffectLocation]() {
         // Восстанавливаем исходное значение
         MovementComp->MaxWalkSpeed = OriginalSpeed;
-        
+
         // Удаляем эффект
         if (SpeedEffect)
         {
             SpeedEffect->DestroyComponent();
         }
-    });
-    
+
+        // Воспроизводим звук окончания эффекта
+        if (SoundToPlay && Character && Character->IsValidLowLevel())
+        {
+            UGameplayStatics::PlaySoundAtLocation(
+                Character,    // WorldContextObject
+                SoundToPlay,  // Звук
+                EffectLocation, // Позиция
+                1.0f,         // Громкость
+                1.0f          // Высота звука
+            );
+        }
+        });
+
     GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, Duration, false);
 
     // Уведомляем игрока об активации усиления

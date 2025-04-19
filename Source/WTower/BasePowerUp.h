@@ -24,7 +24,8 @@ class WTOWER_API ABasePowerUp : public AActor
 
 public:
     ABasePowerUp();
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+    USoundBase* ExpireSound;
     // Основные компоненты
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UStaticMeshComponent* MeshComponent;

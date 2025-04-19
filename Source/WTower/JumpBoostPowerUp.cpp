@@ -48,23 +48,40 @@ void AJumpBoostPowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
         );
     }
 
+    // Сохраняем позицию и звук для использования в лямбде
+    FVector EffectLocation = GetActorLocation();
+    USoundBase* SoundToPlay = ExpireSound; // Новая строка
+
     // Через определенное время восстанавливаем исходное значение
     FTimerHandle TimerHandle;
     FTimerDelegate TimerDelegate;
-    
-    TimerDelegate.BindLambda([MovementComp, OriginalJumpZ, JumpEffect]() {
+
+    TimerDelegate.BindLambda([MovementComp, OriginalJumpZ, JumpEffect, Character, SoundToPlay, EffectLocation]() {
         // Восстанавливаем исходное значение
         MovementComp->JumpZVelocity = OriginalJumpZ;
-        
+
         // Удаляем эффект
         if (JumpEffect)
         {
             JumpEffect->DestroyComponent();
         }
-    });
-    
+
+        // Воспроизводим звук окончания эффекта
+        if (SoundToPlay && Character && Character->IsValidLowLevel())
+        {
+            UGameplayStatics::PlaySoundAtLocation(
+                Character,    // WorldContextObject
+                SoundToPlay,  // Звук
+                EffectLocation, // Позиция
+                1.0f,         // Громкость
+                1.0f          // Высота звука
+            );
+        }
+        });
+
     GetWorldTimerManager().SetTimer(TimerHandle, TimerDelegate, Duration, false);
 
     // Уведомляем игрока об активации усиления
     Character->NotifyPowerUpActivated(PowerUpType, Duration);
+
 }

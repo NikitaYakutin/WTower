@@ -12,7 +12,8 @@ class WTOWER_API ABreakablePlatform : public ABasePlatform
 
 public:
     ABreakablePlatform();
-
+    UPROPERTY(EditDefaultsOnly, Category = "Audio")
+    USoundBase* BreakSound;
     // Дополнительные настройки разрушаемой платформы
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Platform|Break")
     bool bShakeBeforeBreak;

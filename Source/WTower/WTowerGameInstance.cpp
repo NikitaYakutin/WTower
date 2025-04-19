@@ -2,7 +2,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SaveGame/WTowerSaveGame.h"
 #include "Config/WTowerGameConfig.h"
-#include "Audio/WAudioManager.h"
+#include "Audio/WAudioManagerActor.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "JsonObjectConverter.h"
@@ -14,7 +14,6 @@ UWTowerGameInstance::UWTowerGameInstance()
     CurrentSaveSlot = TEXT("DefaultSave");
     CurrentSaveGame = nullptr;
     GameConfig = nullptr;
-    AudioManager = nullptr;
     CurrentLevelIndex = 0;
     
     // Установка путей для файлов настроек
@@ -38,12 +37,7 @@ void UWTowerGameInstance::Init()
     InitializeGameConfig();
     InitializeLevelSequence();
     
-    // Создаем и инициализируем аудио менеджер
-    AudioManager = NewObject<UWAudioManager>(this);
-    if (AudioManager)
-    {
-        AudioManager->Initialize(this);
-    }
+
     
     UE_LOG(LogTemp, Log, TEXT("WTowerGameInstance: Initialized"));
 }
@@ -147,7 +141,12 @@ void UWTowerGameInstance::LoadGameConfig()
         }
     }
 }
-
+// Заменить метод GetAudioManager
+AWAudioManagerActor* UWTowerGameInstance::GetAudioManager() const
+{
+    AActor* FoundActor = UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass());
+    return Cast<AWAudioManagerActor>(FoundActor);
+}
 void UWTowerGameInstance::ApplySettings()
 {
     // Применяем настройки графики
@@ -157,9 +156,10 @@ void UWTowerGameInstance::ApplySettings()
     }
     
     // Применяем настройки звука
+    AWAudioManagerActor* AudioManager = GetAudioManager();
     if (AudioManager)
     {
-        AudioManager->ApplySoundSettings();
+        AudioManager->LoadSettingsFromConfig();
     }
 }
 
@@ -242,3 +242,4 @@ void UWTowerGameInstance::UpdateBestScore(const FString& LevelName, int32 NewSco
         }
     }
 }
+

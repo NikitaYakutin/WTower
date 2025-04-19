@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "BasePowerUp.h"
+#include "WTowerGameInstance.h"
+#include "Audio/WAudioManagerActor.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -41,12 +43,15 @@ public:
 
     // Таймер автоматических прыжков
     FTimerHandle JumpTimerHandle;
+    // Reference to the audio manager
 
     // Звуковые эффекты
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Аудио")
-    USoundBase* JumpSound;
+    // Sound effects for character
+    UPROPERTY(EditDefaultsOnly, Category = "Audio")
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Аудио")
+    USoundBase* DeactivatedSound;
+    UPROPERTY(EditDefaultsOnly, Category = "Audio")
+
     USoundBase* LandSound;
 
     // Вспомогательный метод для воспроизведения звуков
@@ -62,9 +67,7 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Power-Ups")
     void NotifyPowerUpDeactivated(EPowerUpType PowerUpType);
 
-    // Метод для включения визуального отображения активного усиления
-    UFUNCTION(BlueprintCallable, Category = "Power-Ups")
-    void DisplayActivePowerUp(EPowerUpType PowerUpType, float Duration);
+
 
     //----------------------------------------------------------------------------------------
    // МЕТОДЫ ИГРОВОЙ СТАТИСТИКИ

@@ -12,7 +12,8 @@ class WTOWER_API ABouncyPlatform : public ABasePlatform
 
 public:
     ABouncyPlatform();
-
+    UPROPERTY(EditDefaultsOnly, Category = "Audio")
+    USoundBase* BouncySound;
     // Дополнительные настройки пружинящей платформы
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Platform|Bounce")
     bool bScaleOnBounce;
@@ -25,7 +26,17 @@ public:
 
 protected:
     virtual void BeginPlay() override;
-    
+    // Оригинальный масштаб платформы
+    TOptional<FVector> OriginalPlatformScale;
+
+    // Таймер для восстановления масштаба
+    FTimerHandle ScaleTimerHandle;
+    // Время последней активации
+    float LastActivationTime = 0.0f;
+
+    // Минимальное время между активациями (секунды)
+    UPROPERTY(EditAnywhere, Category = "Platform|Bounce")
+    float CooldownTime = 0.1f;
     // Переопределяем метод отскока
     virtual void BouncePlatform(AActor* Activator) override;
     virtual void ActivatePlatform(AActor* Activator) override;

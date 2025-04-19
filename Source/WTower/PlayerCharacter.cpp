@@ -320,7 +320,11 @@ void APlayerCharacter::Landed(const FHitResult& Hit)
     Super::Landed(Hit);
 
     // Воспроизводим звук приземления
-    PlayCharacterSound(LandSound);
+    AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+    if (AudioManager)
+    {
+        AudioManager->PlaySoundAtLocation(LandSound, GetActorLocation());
+    }
 
     // Планируем следующий прыжок с небольшой задержкой
     // Задержка в 0.1 секунды необходима для того, чтобы:
@@ -349,7 +353,7 @@ void APlayerCharacter::PerformJump()
         GetCharacterMovement()->Velocity = Velocity;
 
         // Воспроизводим звук прыжка
-        PlayCharacterSound(JumpSound);
+
 
         // Вызываем базовую функцию Jump
         Jump();
@@ -443,29 +447,3 @@ void APlayerCharacter::UpdateHeight()
 //----------------------------------------------------------------------------------------
 // Добавьте в существующий файл PlayerCharacter.cpp
 
-void APlayerCharacter::DisplayActivePowerUp(EPowerUpType PowerUpType, float Duration)
-{
-    // Сохраняем информацию об активном усилении
-    ActivePowerUps.Add(PowerUpType, true);
-
-    // Если задана длительность, настраиваем таймер для отключения визуального эффекта
-    if (Duration > 0.0f)
-    {
-        FTimerHandle& TimerHandle = ActivePowerUpTimers.FindOrAdd(PowerUpType);
-
-        GetWorldTimerManager().ClearTimer(TimerHandle);
-        GetWorldTimerManager().SetTimer(
-            TimerHandle,
-            FTimerDelegate::CreateLambda([this, PowerUpType]() {
-                // По истечении таймера отмечаем усиление как неактивное
-                ActivePowerUps.Add(PowerUpType, false);
-
-                // UI обновление может быть вызвано здесь или через событие Blueprint
-                }),
-            Duration,
-            false
-        );
-    }
-
-    // UI обновление может быть вызвано здесь или через событие Blueprint
-}

@@ -107,7 +107,11 @@ void ABasePowerUp::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
         // Визуальные эффекты
         if (PickupSound)
         {
-            UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+            AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+            if (AudioManager)
+            {
+                AudioManager->PlaySoundAtLocation(PickupSound, GetActorLocation());
+            }
         }
 
         if (PickupEffect)
