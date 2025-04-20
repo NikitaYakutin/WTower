@@ -55,6 +55,8 @@ public:
     FOnGameOver OnGameOver;
 //=======================================
 
+    // Update best score and time when game ends
+    void UpdateBestScoreAndTime();
 private:
     // Переменные состояния игры
     bool bGameEnded;

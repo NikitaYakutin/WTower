@@ -1,6 +1,9 @@
 #include "WAudioManagerActor.h"
 #include "Kismet/GameplayStatics.h"
 
+#include <WTower/WTowerGameInstance.h>
+
+
 AWAudioManagerActor::AWAudioManagerActor()
 {
     PrimaryActorTick.bCanEverTick = false;
@@ -27,6 +30,9 @@ void AWAudioManagerActor::BeginPlay()
 
     // Обеспечиваем, чтобы аудио менеджер не уничтожался при смене уровней
     SetActorTickEnabled(false);
+
+    // Загружаем настройки из GameInstance
+    UpdateSettingsFromGameInstance();
 }
 
 void AWAudioManagerActor::PlayMusic(USoundBase* Music)
@@ -94,3 +100,18 @@ void AWAudioManagerActor::UpdateVolumes()
     }
 }
 
+void AWAudioManagerActor::UpdateSettingsFromGameInstance()
+{
+    UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
+    if (GameInstance)
+    {
+        MasterVolume = GameInstance->GetMasterVolume();
+        MusicVolume = GameInstance->GetMusicVolume();
+        SFXVolume = GameInstance->GetSFXVolume();
+
+        UpdateVolumes();
+
+        UE_LOG(LogTemp, Log, TEXT("Audio Manager updated settings from GameInstance: Master=%f, Music=%f, SFX=%f"),
+            MasterVolume, MusicVolume, SFXVolume);
+    }
+}

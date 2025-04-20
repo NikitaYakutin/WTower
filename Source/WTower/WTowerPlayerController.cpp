@@ -3,6 +3,9 @@
 #include "WTowerGameState.h"
 #include "GameFramework/PlayerInput.h"
 #include "Engine/World.h"
+#include "Menu/MenuWidget/WPauseMenuWidget.h"
+#include <Kismet/GameplayStatics.h>
+#include "Menu/MenuGameMode.h"
 
 AWTowerPlayerController::AWTowerPlayerController()
 {
@@ -10,7 +13,7 @@ AWTowerPlayerController::AWTowerPlayerController()
     bShowMouseCursor = false;
     bEnableClickEvents = false;
     bEnableMouseOverEvents = false;
-    
+
 
 }
 
@@ -47,4 +50,7 @@ void AWTowerPlayerController::SetupInputComponent()
     
     // You can add additional controller-specific input handling here if needed
     // For example, menu access, pause game, etc.
+     // Add pause game key binding
+    InputComponent->BindAction("TogglePause", IE_Pressed, this, &AWTowerPlayerController::TogglePauseMenu);
 }
+// Реализация TogglePauseMenu

@@ -20,7 +20,11 @@ public:
     // Компоненты для стриминга музыки
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UAudioComponent* MusicComponent;
-
+    // Update audio settings from GameInstance
+    UFUNCTION(BlueprintCallable, Category = "Audio")
+    void UpdateSettingsFromGameInstance();
+    UFUNCTION(BlueprintCallable, Category = "Audio")
+    void UpdateVolumes();
     // Звуки, доступные из Blueprint
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sounds|Music")
     USoundBase* MenuMusic;
@@ -72,8 +76,7 @@ public:
 
 
 private:
-    // Применение изменений громкости
-    void UpdateVolumes();
+
 
 
 };

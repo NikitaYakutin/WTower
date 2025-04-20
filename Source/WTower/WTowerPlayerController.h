@@ -1,8 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Menu/MenuWidget/WSettingsMenuWidget.h"
+#include "Menu/MenuWidget/WPauseMenuWidget.h"
 #include "GameFramework/PlayerController.h"
 #include "WTowerPlayerController.generated.h"
+
 
 /**
  * Custom player controller for WTower
@@ -15,6 +18,13 @@ class WTOWER_API AWTowerPlayerController : public APlayerController
 public:
     // Constructor
     AWTowerPlayerController();
+    // Toggle pause menu
+// Добавьте в заголовок
+
+
+
+
+
 
     // Called when the controller possesses a pawn
     virtual void OnPossess(APawn* InPawn) override;
@@ -25,4 +35,6 @@ public:
 protected:
     // Called to bind functionality to input
     virtual void SetupInputComponent() override;
+
+
 };

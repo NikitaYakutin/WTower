@@ -7,6 +7,7 @@
 #include "WTowerHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Audio/WAudioManagerActor.h"
+#include "WTowerGameInstance.h"
 AWTowerGameMode::AWTowerGameMode()
 {
     // Set default pawn class to our player character
@@ -145,7 +146,7 @@ void AWTowerGameMode::EndGameWithVictory()
     }
 
     bGameEnded = true;
-
+    UpdateBestScoreAndTime();
     UE_LOG(LogTemp, Log, TEXT("WTowerGameMode: Game ended with VICTORY"));
 
     // Вызываем делегат для уведомления о победе
@@ -164,7 +165,7 @@ void AWTowerGameMode::EndGameWithDefeat(FString Reason)
     }
 
     bGameEnded = true;
-
+    UpdateBestScoreAndTime();
     UE_LOG(LogTemp, Log, TEXT("WTowerGameMode: Game ended with DEFEAT. Reason: %s"), *Reason);
 
     // Вызываем делегат для уведомления о поражении
@@ -172,4 +173,48 @@ void AWTowerGameMode::EndGameWithDefeat(FString Reason)
 
     // Здесь можно добавить код для показа экрана поражения,
     // воспроизведения звуков, анимаций и т.д.
+}
+void AWTowerGameMode::UpdateBestScoreAndTime()
+{
+    // Get game instance
+    UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to get WTowerGameInstance in GameMode!"));
+        return;
+    }
+
+    // Get game state
+    AWTowerGameState* WTowerGameState = Cast<AWTowerGameState>(GameState);
+    if (!WTowerGameState)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to get WTowerGameState in GameMode!"));
+        return;
+    }
+
+    // Update best score
+    int32 CurrentScore = WTowerGameState->GetScore();
+    bool bNewBestScore = GameInstance->UpdateBestScore(CurrentScore);
+
+    if (bNewBestScore)
+    {
+        UE_LOG(LogTemp, Log, TEXT("New best score achieved: %d"), CurrentScore);
+    }
+
+    // If game was completed, update best time
+    if (WTowerGameState->IsGameCompleted())
+    {
+        float CompletionTime = WTowerGameState->GetCompletionTime();
+        bool bNewBestTime = GameInstance->UpdateBestCompletionTime(CompletionTime);
+
+        if (bNewBestTime)
+        {
+            int32 Minutes = FMath::FloorToInt(CompletionTime / 60.0f);
+            int32 Seconds = FMath::FloorToInt(CompletionTime - Minutes * 60.0f);
+            UE_LOG(LogTemp, Log, TEXT("New best completion time achieved: %02d:%02d"), Minutes, Seconds);
+        }
+    }
+
+    // Save game data to ensure everything is persisted
+    GameInstance->SaveGameData();
 }
