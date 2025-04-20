@@ -3,7 +3,7 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include <Kismet/GameplayStatics.h>
-
+#include "Audio/WAudioManagerActor.h"
 ABouncyPlatform::ABouncyPlatform()
 {
     // Устанавливаем тип по умолчанию как Bouncy

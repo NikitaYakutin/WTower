@@ -4,7 +4,7 @@
 #include "PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
-
+#include "Audio/WAudioManagerActor.h"
 // Инициализация статических свойств
 TMap<EPowerUpType, FLinearColor> ABasePowerUp::PowerUpColors;
 bool ABasePowerUp::bColorsInitialized = false;

@@ -1,5 +1,5 @@
 #include "WTowerGameState.h"
-#include "WTowerGameInstance.h"
+
 //----------------------------------------------------------------------------------------
 // КОНСТРУКТОР И МЕТОДЫ ЖИЗНЕННОГО ЦИКЛА
 //----------------------------------------------------------------------------------------
@@ -85,28 +85,13 @@ void AWTowerGameState::UpdatePlayerHeight(float NewHeight)
     // Обновляем максимальную высоту, если текущая высота больше
     if (CurrentPlayerHeight > MaxPlayerHeight)
     {
+        float PreviousHeight = MaxPlayerHeight;
         MaxPlayerHeight = CurrentPlayerHeight;
+        // Начисляем очки только за новую достигнутую высоту
+        float HeightDifference = CurrentPlayerHeight - PreviousHeight;
+        AddScore(HeightDifference * 0.5f); // 2.5 очков за каждую единицу высоты
         
         // Вызываем делегат для уведомления о изменении максимальной высоты
         OnMaxHeightChanged.Broadcast(MaxPlayerHeight);
-    }
-}
-
-// Добавить в конец файла
-void AWTowerGameState::SaveCurrentProgress(const FString& LevelName)
-{
-    UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetWorld()->GetGameInstance());
-    if (GameInstance)
-    {
-        // Сохраняем лучшее время и счет
-        if (bGameCompleted)
-        {
-            GameInstance->UpdateBestCompletionTime(LevelName, CompletionTime);
-        }
-
-        GameInstance->UpdateBestScore(LevelName, Score);
-
-        // Сохраняем прогресс
-        GameInstance->SaveGame();
     }
 }

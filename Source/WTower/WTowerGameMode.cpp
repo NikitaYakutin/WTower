@@ -6,7 +6,7 @@
 #include "WTowerGameState.h"
 #include "WTowerHUD.h"
 #include "Kismet/GameplayStatics.h"
-#include "WTowerGameInstance.h"
+#include "Audio/WAudioManagerActor.h"
 AWTowerGameMode::AWTowerGameMode()
 {
     // Set default pawn class to our player character
@@ -39,7 +39,11 @@ AWTowerGameMode::AWTowerGameMode()
 void AWTowerGameMode::BeginPlay()
 {
     Super::BeginPlay();
-    
+    AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+    if (AudioManager)
+    {
+        AudioManager->PlayGameplayMusic();
+    }
     UE_LOG(LogTemp, Log, TEXT("WTowerGameMode: Game started"));
     AWTowerGameState* WTowerGameState = Cast<AWTowerGameState>(GameState);
     if (WTowerGameState)
@@ -121,6 +125,11 @@ void AWTowerGameMode::Tick(float DeltaTime)
 // Обработчик события завершения игры (вызывается из GameState)
 void AWTowerGameMode::OnGameCompleted(float CompletionTime)
 {
+    AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+    if (AudioManager)
+    {
+        AudioManager->StopMusic();
+    }
     // Игрок собрал предмет победы или выполнил другое условие,
     // которое уже было обработано в GameState
     EndGameWithVictory();
@@ -163,9 +172,4 @@ void AWTowerGameMode::EndGameWithDefeat(FString Reason)
 
     // Здесь можно добавить код для показа экрана поражения,
     // воспроизведения звуков, анимаций и т.д.
-}
-// Добавить в конец файла
-UWTowerGameInstance* AWTowerGameMode::GetWTowerGameInstance() const
-{
-    return Cast<UWTowerGameInstance>(GetGameInstance());
 }

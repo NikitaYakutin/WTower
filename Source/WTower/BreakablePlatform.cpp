@@ -3,6 +3,7 @@
 #include "PlayerCharacter.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include <Kismet/GameplayStatics.h>
+#include "Audio/WAudioManagerActor.h"
 
 ABreakablePlatform::ABreakablePlatform()
 {

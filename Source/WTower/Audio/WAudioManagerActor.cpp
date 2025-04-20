@@ -1,7 +1,5 @@
 #include "WAudioManagerActor.h"
 #include "Kismet/GameplayStatics.h"
-#include "../WTowerGameInstance.h"
-#include "../Config/WTowerGameConfig.h"
 
 AWAudioManagerActor::AWAudioManagerActor()
 {
@@ -23,11 +21,6 @@ void AWAudioManagerActor::BeginPlay()
 {
     Super::BeginPlay();
 
-    // Получаем GameInstance при старте
-    GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
-
-    // Загружаем настройки из конфига
-    LoadSettingsFromConfig();
 
     // Делаем звуковой компонент не разрушаемым при смене уровней
     MusicComponent->bStopWhenOwnerDestroyed = false;
@@ -91,32 +84,6 @@ void AWAudioManagerActor::PlaySoundAtLocation(USoundBase* Sound, FVector Locatio
     }
 }
 
-void AWAudioManagerActor::SetMasterVolume(float Volume)
-{
-    MasterVolume = FMath::Clamp(Volume, 0.0f, 1.0f);
-    UpdateVolumes();
-    SaveSettingsToConfig();
-}
-
-void AWAudioManagerActor::SetMusicVolume(float Volume)
-{
-    MusicVolume = FMath::Clamp(Volume, 0.0f, 1.0f);
-    UpdateVolumes();
-    SaveSettingsToConfig();
-}
-
-void AWAudioManagerActor::SetSFXVolume(float Volume)
-{
-    SFXVolume = FMath::Clamp(Volume, 0.0f, 1.0f);
-    SaveSettingsToConfig();
-}
-
-void AWAudioManagerActor::MuteAudio(bool bMute)
-{
-    bMuteAudio = bMute;
-    UpdateVolumes();
-    SaveSettingsToConfig();
-}
 
 void AWAudioManagerActor::UpdateVolumes()
 {
@@ -127,36 +94,3 @@ void AWAudioManagerActor::UpdateVolumes()
     }
 }
 
-void AWAudioManagerActor::LoadSettingsFromConfig()
-{
-    if (GameInstance && GameInstance->GetGameConfig())
-    {
-        UWTowerGameConfig* Config = GameInstance->GetGameConfig();
-
-        // Загружаем значения громкости
-        MasterVolume = Config->MasterVolume;
-        MusicVolume = Config->MusicVolume;
-        SFXVolume = Config->SFXVolume;
-        bMuteAudio = Config->bMuteAudio;
-
-        // Применяем загруженные настройки
-        UpdateVolumes();
-    }
-}
-
-void AWAudioManagerActor::SaveSettingsToConfig()
-{
-    if (GameInstance && GameInstance->GetGameConfig())
-    {
-        UWTowerGameConfig* Config = GameInstance->GetGameConfig();
-
-        // Сохраняем настройки в конфиг
-        Config->MasterVolume = MasterVolume;
-        Config->MusicVolume = MusicVolume;
-        Config->SFXVolume = SFXVolume;
-        Config->bMuteAudio = bMuteAudio;
-
-        // Сохраняем конфиг в файл
-        GameInstance->SaveGameConfig();
-    }
-}

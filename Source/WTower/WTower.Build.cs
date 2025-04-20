@@ -9,7 +9,7 @@ public class WTower : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG","Slate",
-            "SlateCore", "EnhancedInput", "Json", "JsonUtilities" });
+            "SlateCore", "EnhancedInput" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

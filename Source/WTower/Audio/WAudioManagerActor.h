@@ -69,28 +69,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Audio")
     void PlaySoundAtLocation(USoundBase* Sound, FVector Location);
 
-    UFUNCTION(BlueprintCallable, Category = "Audio")
-    void SetMasterVolume(float Volume);
 
-    UFUNCTION(BlueprintCallable, Category = "Audio")
-    void SetMusicVolume(float Volume);
-
-    UFUNCTION(BlueprintCallable, Category = "Audio")
-    void SetSFXVolume(float Volume);
-
-    UFUNCTION(BlueprintCallable, Category = "Audio")
-    void MuteAudio(bool bMute);
-
-    UFUNCTION(BlueprintCallable, Category = "Audio")
-    void LoadSettingsFromConfig();
-
-    UFUNCTION(BlueprintCallable, Category = "Audio")
-    void SaveSettingsToConfig();
 
 private:
     // Применение изменений громкости
     void UpdateVolumes();
 
-    // Кеш ссылки на GameInstance для доступа к конфигу
-    class UWTowerGameInstance* GameInstance;
+
 };
