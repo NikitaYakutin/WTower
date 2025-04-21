@@ -4,6 +4,7 @@
 #include "Menu/MenuWidget/WSettingsMenuWidget.h"
 #include "Menu/MenuWidget/WPauseMenuWidget.h"
 #include "GameFramework/PlayerController.h"
+#include "Menu/WUIManager.h"
 #include "WTowerPlayerController.generated.h"
 
 
@@ -21,7 +22,22 @@ public:
     // Toggle pause menu
 // Добавьте в заголовок
 
+        // Toggle pause menu
+    void TogglePauseMenu();
 
+    // Functions to manage menu navigation
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void OpenSettingsFromPause();
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void ReturnToPauseFromSettings();
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void ClosePauseMenu();
+
+    // Flag to track if settings menu was opened from pause menu
+    UPROPERTY()
+    bool bIsSettingsOpenFromPause;
 
 
 
@@ -36,5 +52,7 @@ protected:
     // Called to bind functionality to input
     virtual void SetupInputComponent() override;
 
-
+    // UI Manager reference
+    UPROPERTY()
+    UWUIManager* UIManager;
 };

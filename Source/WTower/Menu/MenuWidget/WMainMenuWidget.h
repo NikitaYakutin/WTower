@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "WBaseMenuWidget.h"
@@ -19,15 +19,15 @@ class WTOWER_API UWMainMenuWidget : public UWBaseMenuWidget
 public:
     virtual void InitializeMenu() override;
     
-    // Button handlers
+    // Функции для кнопок меню
     UFUNCTION(BlueprintCallable, Category = "Menu")
     void OnStartGameClicked();
-    
+
     UFUNCTION(BlueprintCallable, Category = "Menu")
     void OnSettingsClicked();
-    
+
     UFUNCTION(BlueprintCallable, Category = "Menu")
-    void OnQuitGameClicked();
+    void OnExitClicked();
 
 protected:
     // UI Components - to be bound in Blueprint
@@ -37,20 +37,12 @@ protected:
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Menu")
     class UTextBlock* BestTimeText;
     
-    // Settings menu widget class
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Menu")
-    TSubclassOf<UWSettingsMenuWidget> SettingsMenuClass;
-    
-    // Reference to the settings menu
-    UPROPERTY()
-    UWSettingsMenuWidget* SettingsMenu;
-    UPROPERTY()
-    UWMainMenuWidget* MainMenu;
-    // Cached game instance reference
+
     UPROPERTY()
     UWTowerGameInstance* GameInstanceRef;
     
     // Level to load when starting the game
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Menu")
     FName GameLevelName;
+
 };

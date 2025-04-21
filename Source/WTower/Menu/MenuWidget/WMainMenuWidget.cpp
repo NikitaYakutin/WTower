@@ -5,7 +5,7 @@
 #include "WBaseMenuWidget.h"
 #include <WTower/Menu/MenuPlayerController.h>
 #include <WTower/Menu/MenuGameMode.h>
-
+#include "../WUIManager.h"
 void UWMainMenuWidget::InitializeMenu()
 {
     Super::InitializeMenu();
@@ -44,36 +44,24 @@ void UWMainMenuWidget::InitializeMenu()
         GameLevelName = TEXT("Challenge");
     }
 }
-
 void UWMainMenuWidget::OnStartGameClicked()
 {
-    AMenuGameMode* GameMode = Cast<AMenuGameMode>(GetWorld()->GetAuthGameMode());
-    if (GameMode)
-    {
-        // Закрываем все меню и начинаем игру
-        GameMode->CloseCurrentMenu();
-        UGameplayStatics::OpenLevel(this, GameLevelName);
-        // Здесь код для начала игры...
-    }
-    // Load the game level
-
-
+    // Загружаем основной игровой уровень
+    UGameplayStatics::OpenLevel(GetWorld(), GameLevelName);
 }
-
 
 void UWMainMenuWidget::OnSettingsClicked()
 {
-    AMenuGameMode* GameMode = Cast<AMenuGameMode>(GetWorld()->GetAuthGameMode());
-    if (GameMode)
+    if (UIManager)
     {
-        GameMode->ShowMenu(EMenuType::Settings);
+        UIManager->OpenSettings();
     }
 }
-void UWMainMenuWidget::OnQuitGameClicked()
+
+void UWMainMenuWidget::OnExitClicked()
 {
-    // Quit the game
-    if (GetOwningPlayer())
-    {
-        GetOwningPlayer()->ConsoleCommand("quit");
-    }
+    // Выход из игры
+    UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
 }
+
+

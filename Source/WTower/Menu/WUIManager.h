@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Blueprint/UserWidget.h"
+#include "MenuWidget/WBaseMenuWidget.h" // Важно включить заголовок базового класса меню
 #include "Framework/Commands/InputChord.h"
 #include "WUIManager.generated.h"
 
@@ -12,9 +13,9 @@ class UWMainMenuWidget;
 class UWPauseMenuWidget;
 class UWSettingsMenuWidget;
 class UWVictoryScreenWidget;
-class UWDefeatScreenWidget;
+//class UWDefeatScreenWidget;
 class UWBaseMenuWidget;
-class UWHUDWidget;
+//class UWHUDWidget;
 class APlayerController;
 
 // Типы меню
@@ -89,16 +90,16 @@ public:
 
     /**
      * Показать экран поражения
-     */
-    UFUNCTION(BlueprintCallable, Category = "UI")
-    void ShowDefeatScreen();
+    // */
+    //UFUNCTION(BlueprintCallable, Category = "UI")
+    //void ShowDefeatScreen();
 
-    /**
-     * Показать/скрыть HUD
-     * @param bShow True для отображения, False для скрытия
-     */
-    UFUNCTION(BlueprintCallable, Category = "UI")
-    void SetHUDVisibility(bool bShow);
+    ///**
+    // * Показать/скрыть HUD
+    // * @param bShow True для отображения, False для скрытия
+    // */
+    //UFUNCTION(BlueprintCallable, Category = "UI")
+    //void SetHUDVisibility(bool bShow);
 
     /**
      * Обработать нажатие клавиши
@@ -177,12 +178,12 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
     TSubclassOf<UWVictoryScreenWidget> VictoryScreenWidgetClass;
-    
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<UWDefeatScreenWidget> DefeatScreenWidgetClass;
-    
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<UWHUDWidget> HUDWidgetClass;
+
+    //UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    //TSubclassOf<UWDefeatScreenWidget> DefeatScreenWidgetClass;
+
+    //UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    //TSubclassOf<UWHUDWidget> HUDWidgetClass;
 
     // Текущие экземпляры виджетов
     UPROPERTY()
@@ -196,12 +197,12 @@ private:
 
     UPROPERTY()
     mutable UWVictoryScreenWidget* VictoryScreenWidget;
-    
-    UPROPERTY()
-    mutable UWDefeatScreenWidget* DefeatScreenWidget;
-    
-    UPROPERTY()
-    UWHUDWidget* HUDWidget;
+
+    //UPROPERTY()
+    //mutable UWDefeatScreenWidget* DefeatScreenWidget;
+
+    //UPROPERTY()
+    //UWHUDWidget* HUDWidget;
 
     // Текущий тип меню
     UPROPERTY()
@@ -214,75 +215,8 @@ private:
     // Контроллер игрока, владеющий этим менеджером
     UPROPERTY()
     APlayerController* OwningController;
-    
-    // Флаг видимости HUD
-    UPROPERTY()
-    bool bHUDVisible;
-};
 
-/**
- * Базовый класс для всех виджетов меню
- */
-UCLASS(Abstract)
-class WTOWER_API UWBaseMenuWidget : public UUserWidget
-{
-    GENERATED_BODY()
-
-public:
-    /** Ссылка на UIManager */
-    UPROPERTY()
-    UWUIManager* UIManager;
-
-    /**
-     * Инициализировать меню
-     */
-    UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-    void InitializeMenu();
-
-    /**
-     * Открыть меню
-     */
-    UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-    void OpenMenu();
-
-    /**
-     * Закрыть меню
-     */
-    UFUNCTION(BlueprintImplementableEvent, Category = "UI")
-    void CloseMenu();
-
-    /**
-     * Воспроизвести анимацию открытия
-     */
-    UFUNCTION(BlueprintImplementableEvent, Category = "UI|Animation")
-    void PlayOpenAnimation();
-
-    /**
-     * Воспроизвести анимацию закрытия
-     */
-    UFUNCTION(BlueprintImplementableEvent, Category = "UI|Animation")
-    void PlayCloseAnimation();
-
-    /**
-     * Вернуться к предыдущему меню
-     */
-    UFUNCTION(BlueprintCallable, Category = "UI")
-    void ReturnToPreviousMenu()
-    {
-        if (UIManager)
-        {
-            UIManager->ReturnToPreviousMenu();
-        }
-    }
-
-    /**
-     * Обработать нажатие клавиши
-     * @param Key Нажатая клавиша
-     * @return True, если клавиша была обработана
-     */
-    virtual bool HandleKeyPress(FKey Key) { return false; }
-
-    /** Делегат, вызываемый при закрытии меню */
-    UPROPERTY(BlueprintAssignable, Category = "UI|Events")
-    FSimpleMulticastDelegate OnMenuClosed;
+    //// Флаг видимости HUD
+    //UPROPERTY()
+    //bool bHUDVisible;
 };

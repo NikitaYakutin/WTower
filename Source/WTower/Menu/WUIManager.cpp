@@ -1,13 +1,14 @@
 // WUIManager.cpp - Единый класс управления пользовательским интерфейсом
 #include "WUIManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "MenuWidget/WBaseMenuWidget.h"
 #include "GameFramework/PlayerController.h"
-#include "UI/WMainMenuWidget.h"
-#include "UI/WPauseMenuWidget.h"
-#include "UI/WSettingsMenuWidget.h"
-#include "UI/WVictoryScreenWidget.h"
-#include "UI/WDefeatScreenWidget.h"
-#include "UI/WHUDWidget.h"
+#include "MenuWidget/WMainMenuWidget.h"
+#include "MenuWidget/WPauseMenuWidget.h"
+#include "MenuWidget/WSettingsMenuWidget.h"
+#include "MenuWidget/WVictoryScreenWidget.h"
+//#include "UI/WDefeatScreenWidget.h"
+//#include "UI/WHUDWidget.h"
 
 UWUIManager::UWUIManager()
 {
@@ -17,10 +18,10 @@ UWUIManager::UWUIManager()
     PauseMenuWidget = nullptr;
     SettingsMenuWidget = nullptr;
     VictoryScreenWidget = nullptr;
-    DefeatScreenWidget = nullptr;
-    HUDWidget = nullptr;
+    //DefeatScreenWidget = nullptr;
+    //HUDWidget = nullptr;
     OwningController = nullptr;
-    bHUDVisible = false;
+    //bHUDVisible = false;
 }
 
 void UWUIManager::Initialize(APlayerController* InOwningController)
@@ -61,8 +62,7 @@ void UWUIManager::ShowMenu(EWMenuType MenuType)
         NewWidget->InitializeMenu();
         NewWidget->OpenMenu();
         
-        // Воспроизводим анимацию открытия
-        NewWidget->PlayOpenAnimation();
+
         
         // Настраиваем ввод для UI
         SetupUIInput();
@@ -96,12 +96,7 @@ void UWUIManager::CloseCurrentMenu()
     // Получаем текущий виджет до скрытия
     UWBaseMenuWidget* CurrentWidget = GetOrCreateWidget(CurrentMenuType);
     
-    // Вызываем анимацию закрытия
-    if (CurrentWidget)
-    {
-        CurrentWidget->PlayCloseAnimation();
-    }
-    
+ 
     // Скрываем все меню
     HideAllMenus();
     
@@ -161,32 +156,32 @@ void UWUIManager::ShowVictoryScreen()
     ShowMenu(EWMenuType::Victory);
 }
 
-void UWUIManager::ShowDefeatScreen()
-{
-    ShowMenu(EWMenuType::Defeat);
-}
+//void UWUIManager::ShowDefeatScreen()
+//{
+//    ShowMenu(EWMenuType::Defeat);
+//}
 
-void UWUIManager::SetHUDVisibility(bool bShow)
-{
-    bHUDVisible = bShow;
-    
-    if (!HUDWidget && HUDWidgetClass)
-    {
-        HUDWidget = CreateWidget<UWHUDWidget>(OwningController, HUDWidgetClass);
-    }
-    
-    if (HUDWidget)
-    {
-        if (bShow)
-        {
-            HUDWidget->AddToViewport();
-        }
-        else
-        {
-            HUDWidget->RemoveFromParent();
-        }
-    }
-}
+//void UWUIManager::SetHUDVisibility(bool bShow)
+//{
+//    bHUDVisible = bShow;
+//    
+//    if (!HUDWidget && HUDWidgetClass)
+//    {
+//        HUDWidget = CreateWidget<UWHUDWidget>(OwningController, HUDWidgetClass);
+//    }
+//    
+//    if (HUDWidget)
+//    {
+//        if (bShow)
+//        {
+//            HUDWidget->AddToViewport();
+//        }
+//        else
+//        {
+//            HUDWidget->RemoveFromParent();
+//        }
+//    }
+//}
 
 bool UWUIManager::HandleKeyPress(FKey Key)
 {
@@ -274,13 +269,13 @@ UWBaseMenuWidget* UWUIManager::GetOrCreateWidget(EWMenuType MenuType) const
         }
         return VictoryScreenWidget;
         
-    case EWMenuType::Defeat:
-        if (!DefeatScreenWidget && DefeatScreenWidgetClass)
-        {
-            DefeatScreenWidget = CreateWidget<UWDefeatScreenWidget>(OwningController, DefeatScreenWidgetClass);
-            DefeatScreenWidget->UIManager = const_cast<UWUIManager*>(this);
-        }
-        return DefeatScreenWidget;
+    //case EWMenuType::Defeat:
+    //    if (!DefeatScreenWidget && DefeatScreenWidgetClass)
+    //    {
+    //        DefeatScreenWidget = CreateWidget<UWDefeatScreenWidget>(OwningController, DefeatScreenWidgetClass);
+    //        DefeatScreenWidget->UIManager = const_cast<UWUIManager*>(this);
+    //    }
+    //    return DefeatScreenWidget;
         
     default:
         return nullptr;
@@ -313,9 +308,9 @@ void UWUIManager::HideAllMenus()
         VictoryScreenWidget->RemoveFromParent();
     }
     
-    if (DefeatScreenWidget)
-    {
-        DefeatScreenWidget->CloseMenu();
-        DefeatScreenWidget->RemoveFromParent();
-    }
+    //if (DefeatScreenWidget)
+    //{
+    //    DefeatScreenWidget->CloseMenu();
+    //    DefeatScreenWidget->RemoveFromParent();
+    //}
 }

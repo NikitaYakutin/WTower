@@ -165,27 +165,34 @@ void UWSettingsMenuWidget::SetFullscreenMode(bool bFullscreen)
 }
 // В методе OnBackButtonClicked в WSettingsMenuWidget.cpp
 // Метод для кнопки "Назад"
+// Изменения в существующем коде
+
 void UWSettingsMenuWidget::OnBackButtonClicked()
 {
-    // Проверяем, были ли мы открыты из меню паузы
-    AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
-    if (PC && PC->bIsSettingsOpenFromPause)
+    if (UIManager)
     {
-        // Если открыты из паузы, возвращаемся в паузу
-        PC->ReturnToPauseFromSettings();
+        // Если у нас есть UIManager, используем его для возврата к предыдущему меню
+        UIManager->ReturnToPreviousMenu();
     }
     else
     {
-        // В противном случае, проверяем доступность MenuGameMode
-        AMenuGameMode* GameMode = Cast<AMenuGameMode>(GetWorld()->GetAuthGameMode());
-        if (GameMode)
+        // Резервный вариант: старая логика
+        AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
+        if (PC && PC->bIsSettingsOpenFromPause)
         {
-            GameMode->ReturnToPreviousMenu();
+            PC->ReturnToPauseFromSettings();
         }
         else
         {
-            // Если ничего нет, просто удаляем себя
-            RemoveFromParent();
+            AMenuGameMode* GameMode = Cast<AMenuGameMode>(GetWorld()->GetAuthGameMode());
+            if (GameMode)
+            {
+                GameMode->ReturnToPreviousMenu();
+            }
+            else
+            {
+                RemoveFromParent();
+            }
         }
     }
 }

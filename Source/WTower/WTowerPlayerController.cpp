@@ -54,3 +54,40 @@ void AWTowerPlayerController::SetupInputComponent()
     InputComponent->BindAction("TogglePause", IE_Pressed, this, &AWTowerPlayerController::TogglePauseMenu);
 }
 // Реализация TogglePauseMenu
+void AWTowerPlayerController::TogglePauseMenu()
+{
+    // Проверяем, есть ли у нас UI Manager
+    if (!UIManager)
+    {
+        UIManager = NewObject<UWUIManager>(this);
+        UIManager->Initialize(this);
+    }
+
+    // Используем UI Manager для переключения меню паузы
+    UIManager->TogglePauseMenu();
+}
+
+// Добавляем дополнительные методы для работы с меню
+void AWTowerPlayerController::OpenSettingsFromPause()
+{
+    if (UIManager)
+    {
+        UIManager->OpenSettings();
+    }
+}
+
+void AWTowerPlayerController::ReturnToPauseFromSettings()
+{
+    if (UIManager)
+    {
+        UIManager->ReturnToPreviousMenu();
+    }
+}
+
+void AWTowerPlayerController::ClosePauseMenu()
+{
+    if (UIManager)
+    {
+        UIManager->CloseCurrentMenu();
+    }
+}

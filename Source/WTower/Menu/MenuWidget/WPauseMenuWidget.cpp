@@ -67,34 +67,57 @@ void UWPauseMenuWidget::CloseMenu()
 // Метод для кнопки "Настройки"
 void UWPauseMenuWidget::OnSettingsClicked()
 {
-    // Получаем контроллер игрока
-    AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
-    if (PC)
+    if (UIManager)
     {
-        PC->OpenSettingsFromPause();
+        // Если у нас есть UIManager, используем его для открытия настроек
+        UIManager->OpenSettings();
+    }
+    else
+    {
+        // Резервный вариант: старая логика
+        AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
+        if (PC)
+        {
+            PC->OpenSettingsFromPause();
+        }
     }
 }
 
 void UWPauseMenuWidget::OnResumeClicked()
 {
-    // Получаем контроллер игрока
-    AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
-    if (PC)
+    if (UIManager)
     {
-        PC->ClosePauseMenu();
+        // Если у нас есть UIManager, используем его для закрытия меню паузы
+        UIManager->CloseCurrentMenu();
+    }
+    else
+    {
+        // Резервный вариант: старая логика
+        AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
+        if (PC)
+        {
+            PC->ClosePauseMenu();
+        }
     }
 }
 
 void UWPauseMenuWidget::OnMainMenuClicked()
 {
-    // Получаем контроллер игрока
-    AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
-    if (PC)
+    if (UIManager)
     {
-        // Закрываем меню паузы
-        PC->ClosePauseMenu();
-
-        // Переходим на уровень с главным меню
-        UGameplayStatics::OpenLevel(this, FName("MainMenuLevel"));
+        // Если у нас есть UIManager, используем его для закрытия меню
+        UIManager->CloseCurrentMenu();
     }
+    else
+    {
+        // Резервный вариант: старая логика
+        AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
+        if (PC)
+        {
+            PC->ClosePauseMenu();
+        }
+    }
+
+    // Переходим на уровень с главным меню
+    UGameplayStatics::OpenLevel(this, MainMenuLevelName);
 }
