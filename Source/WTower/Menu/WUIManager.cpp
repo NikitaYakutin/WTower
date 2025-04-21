@@ -34,16 +34,63 @@ void UWUIManager::SetWidgetClasses(TSubclassOf<UWMainMenuWidget> InMainMenuWidge
     TSubclassOf<UWSettingsMenuWidget> InSettingsMenuWidgetClass,
     TSubclassOf<UWVictoryScreenWidget> InVictoryScreenWidgetClass)
 {
-    MainMenuWidgetClass = InMainMenuWidgetClass;
-    PauseMenuWidgetClass = InPauseMenuWidgetClass;
-    SettingsMenuWidgetClass = InSettingsMenuWidgetClass;
-    VictoryScreenWidgetClass = InVictoryScreenWidgetClass;
+    if (InMainMenuWidgetClass)
+    {
+        MainMenuWidgetClass = InMainMenuWidgetClass;
+        UE_LOG(LogTemp, Display, TEXT("UWUIManager::SetWidgetClasses: MainMenuWidgetClass установлен как %s"), *MainMenuWidgetClass->GetName());
+    }
+
+    if (InPauseMenuWidgetClass)
+    {
+        PauseMenuWidgetClass = InPauseMenuWidgetClass;
+        UE_LOG(LogTemp, Display, TEXT("UWUIManager::SetWidgetClasses: PauseMenuWidgetClass установлен как %s"), *PauseMenuWidgetClass->GetName());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("UWUIManager::SetWidgetClasses: InPauseMenuWidgetClass равен nullptr!"));
+    }
+
+    if (InSettingsMenuWidgetClass)
+    {
+        SettingsMenuWidgetClass = InSettingsMenuWidgetClass;
+        UE_LOG(LogTemp, Display, TEXT("UWUIManager::SetWidgetClasses: SettingsMenuWidgetClass установлен как %s"), *SettingsMenuWidgetClass->GetName());
+    }
+
+    if (InVictoryScreenWidgetClass)
+    {
+        VictoryScreenWidgetClass = InVictoryScreenWidgetClass;
+        UE_LOG(LogTemp, Display, TEXT("UWUIManager::SetWidgetClasses: VictoryScreenWidgetClass установлен как %s"), *VictoryScreenWidgetClass->GetName());
+    }
 }
 void UWUIManager::ShowMenu(EWMenuType MenuType)
 {
     if (!OwningController)
     {
-        UE_LOG(LogTemp, Warning, TEXT("WUIManager: Controller not initialized!"));
+        UE_LOG(LogTemp, Error, TEXT("WUIManager: Controller not initialized!"));
+        return;
+    }
+
+    // Проверка на необходимый класс виджета
+    bool bWidgetClassMissing = false;
+    switch (MenuType)
+    {
+    case EWMenuType::Main:
+        if (!MainMenuWidgetClass) bWidgetClassMissing = true;
+        break;
+    case EWMenuType::Pause:
+        if (!PauseMenuWidgetClass) bWidgetClassMissing = true;
+        break;
+    case EWMenuType::Settings:
+        if (!SettingsMenuWidgetClass) bWidgetClassMissing = true;
+        break;
+    case EWMenuType::Victory:
+        if (!VictoryScreenWidgetClass) bWidgetClassMissing = true;
+        break;
+    }
+
+    if (bWidgetClassMissing)
+    {
+        UE_LOG(LogTemp, Error, TEXT("WUIManager: Widget class for menu type %d is not set!"), static_cast<int32>(MenuType));
         return;
     }
 
@@ -147,6 +194,13 @@ void UWUIManager::ReturnToPreviousMenu()
 
 void UWUIManager::TogglePauseMenu()
 {
+    // Проверяем, установлен ли класс меню паузы
+    if (!PauseMenuWidgetClass)
+    {
+        UE_LOG(LogTemp, Error, TEXT("UWUIManager::TogglePauseMenu: PauseMenuWidgetClass не установлен!"));
+        return;
+    }
+
     if (CurrentMenuType == EWMenuType::Pause)
     {
         CloseCurrentMenu();

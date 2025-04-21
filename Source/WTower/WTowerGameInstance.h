@@ -1,8 +1,9 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "WTowerSaveGame.h"
+
 #include "WTowerGameInstance.generated.h"
 
 /**
@@ -15,6 +16,9 @@ class WTOWER_API UWTowerGameInstance : public UGameInstance
 
 public:
     UWTowerGameInstance();
+    // Добавьте в вашем WTowerGameInstance.h:
+
+
 
     virtual void Init() override;
 

@@ -31,6 +31,18 @@ void AWTowerPlayerController::OnPossess(APawn* InPawn)
 void AWTowerPlayerController::BeginPlay()
 {
     Super::BeginPlay();
+
+    // Создаём UIManager заранее, чтобы он был готов к использованию
+    if (!UIManager)
+    {
+        UIManager = NewObject<UWUIManager>(this);
+        UIManager->Initialize(this);
+
+        // Устанавливаем классы виджетов
+        UIManager->SetWidgetClasses(nullptr, PauseMenuWidgetClass,
+            SettingsMenuWidgetClass, VictoryScreenWidgetClass);
+    }
+
     // Set default controller input mode to game only
     FInputModeGameOnly InputMode;
     SetInputMode(InputMode);
@@ -61,12 +73,39 @@ void AWTowerPlayerController::TogglePauseMenu()
     {
         UIManager = NewObject<UWUIManager>(this);
         UIManager->Initialize(this);
+        UE_LOG(LogTemp, Warning, TEXT("WTowerPlayerController::TogglePauseMenu: Создан новый UIManager"));
+    }
+
+    // Получаем классы виджетов из GameInstance
+    UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
+    if (GameInstance)
+    {
+        TSubclassOf<UWPauseMenuWidget> PauseClass;
+        TSubclassOf<UWSettingsMenuWidget> SettingsClass;
+        TSubclassOf<UWVictoryScreenWidget> VictoryClass;
+
+
+        if (PauseClass)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("WTowerPlayerController::TogglePauseMenu: Получен PauseMenuWidgetClass из GameInstance: %s"),
+                *PauseClass->GetName());
+
+            // Устанавливаем класс для UIManager
+            UIManager->SetWidgetClasses(nullptr, PauseClass, SettingsClass, VictoryClass);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("WTowerPlayerController::TogglePauseMenu: Не удалось получить PauseMenuWidgetClass из GameInstance!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("WTowerPlayerController::TogglePauseMenu: Не удалось получить GameInstance!"));
     }
 
     // Используем UI Manager для переключения меню паузы
     UIManager->TogglePauseMenu();
 }
-
 // Добавляем дополнительные методы для работы с меню
 void AWTowerPlayerController::OpenSettingsFromPause()
 {

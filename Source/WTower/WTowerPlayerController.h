@@ -51,7 +51,16 @@ public:
 protected:
     // Called to bind functionality to input
     virtual void SetupInputComponent() override;
+    // Добавьте эти свойства в protected или public секцию
+    // Классы виджетов для UI
+    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    TSubclassOf<class UWPauseMenuWidget> PauseMenuWidgetClass;
 
+    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    TSubclassOf<class UWSettingsMenuWidget> SettingsMenuWidgetClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    TSubclassOf<class UWVictoryScreenWidget> VictoryScreenWidgetClass;
     // UI Manager reference
     UPROPERTY()
     UWUIManager* UIManager;

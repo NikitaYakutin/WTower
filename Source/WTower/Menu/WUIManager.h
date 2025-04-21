@@ -149,7 +149,18 @@ public:
     /** Делегат, вызываемый при смене меню */
     UPROPERTY(BlueprintAssignable, Category = "UI|Events")
     FOnMenuChangedSignature OnMenuChanged;
+    // Классы виджетов
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Widgets")
+    TSubclassOf<UWMainMenuWidget> MainMenuWidgetClass;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Widgets")
+    TSubclassOf<UWPauseMenuWidget> PauseMenuWidgetClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Widgets")
+    TSubclassOf<UWSettingsMenuWidget> SettingsMenuWidgetClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI|Widgets")
+    TSubclassOf<UWVictoryScreenWidget> VictoryScreenWidgetClass;
 private:
     /**
      * Настроить ввод для интерфейса
@@ -174,18 +185,7 @@ private:
     void HideAllMenus();
 
 private:
-    // Классы виджетов
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<UWMainMenuWidget> MainMenuWidgetClass;
 
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<UWPauseMenuWidget> PauseMenuWidgetClass;
-
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<UWSettingsMenuWidget> SettingsMenuWidgetClass;
-
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<UWVictoryScreenWidget> VictoryScreenWidgetClass;
 
     //UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
     //TSubclassOf<UWDefeatScreenWidget> DefeatScreenWidgetClass;
