@@ -63,12 +63,12 @@ public:
     /** Делегат, вызываемый при закрытии меню */
     UPROPERTY(BlueprintAssignable, Category = "UI|Events")
     FOnMenuClosedSignature OnMenuClosed;
-
+    // Flag indicating if the menu is currently open
+    UPROPERTY(BlueprintReadOnly, Category = "Menu")
+    bool bIsMenuOpen;
 protected:
     // Override to implement additional initialization
     virtual void NativeConstruct() override;
 
-    // Flag indicating if the menu is currently open
-    UPROPERTY(BlueprintReadOnly, Category = "Menu")
-    bool bIsMenuOpen;
+
 };

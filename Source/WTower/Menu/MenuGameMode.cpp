@@ -12,6 +12,7 @@ AMenuGameMode::AMenuGameMode()
 }
 
 // В вашем MenuGameMode.cpp
+// Модифицируйте метод BeginPlay:
 void AMenuGameMode::BeginPlay()
 {
     Super::BeginPlay();
@@ -34,6 +35,10 @@ void AMenuGameMode::BeginPlay()
         // Инициализируем UI Manager с контроллером
         UIManager->Initialize(PC);
 
+        // Устанавливаем классы виджетов для UIManager
+        UIManager->SetWidgetClasses(MainMenuWidgetClass, PauseMenuWidgetClass,
+            SettingsMenuWidgetClass, VictoryScreenWidgetClass);
+
         // Устанавливаем ссылку на UIManager в контроллере для удобства доступа
         PC->SetUIManager(UIManager);
 
@@ -42,9 +47,7 @@ void AMenuGameMode::BeginPlay()
     }
     else
     {
-
-            UE_LOG(LogTemp, Error, TEXT("MenuGameMode: No player controller available!"));
-       
+        UE_LOG(LogTemp, Error, TEXT("MenuGameMode: No player controller available!"));
     }
 }
 

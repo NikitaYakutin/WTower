@@ -1,5 +1,6 @@
 #include "../Menu/MenuPlayerController.h"
 #include "WUIManager.h"
+#include "MenuGameMode.h"
 
 AMenuPlayerController::AMenuPlayerController()
 {
@@ -25,8 +26,27 @@ void AMenuPlayerController::BeginPlay()
 
     // Отключаем паузу, если она была включена
     SetPause(false);
-}
 
+    // Проверим, есть ли у нас UIManager
+    if (!UIManager)
+    {
+        // Попытаемся получить его из GameMode
+        AMenuGameMode* MenuGameMode = Cast<AMenuGameMode>(GetWorld()->GetAuthGameMode());
+        if (MenuGameMode)
+        {
+            UIManager = MenuGameMode->GetUIManager();
+
+            if (!UIManager)
+            {
+                UE_LOG(LogTemp, Error, TEXT("MenuPlayerController: UIManager is not available from GameMode!"));
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("MenuPlayerController: MenuGameMode is not available!"));
+        }
+    }
+}
 void AMenuPlayerController::SetUIManager(UWUIManager* InUIManager)
 {
     UIManager = InUIManager;

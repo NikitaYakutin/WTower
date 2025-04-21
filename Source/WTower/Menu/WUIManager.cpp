@@ -28,7 +28,17 @@ void UWUIManager::Initialize(APlayerController* InOwningController)
 {
     OwningController = InOwningController;
 }
-
+// Добавьте после метода Initialize:
+void UWUIManager::SetWidgetClasses(TSubclassOf<UWMainMenuWidget> InMainMenuWidgetClass,
+    TSubclassOf<UWPauseMenuWidget> InPauseMenuWidgetClass,
+    TSubclassOf<UWSettingsMenuWidget> InSettingsMenuWidgetClass,
+    TSubclassOf<UWVictoryScreenWidget> InVictoryScreenWidgetClass)
+{
+    MainMenuWidgetClass = InMainMenuWidgetClass;
+    PauseMenuWidgetClass = InPauseMenuWidgetClass;
+    SettingsMenuWidgetClass = InSettingsMenuWidgetClass;
+    VictoryScreenWidgetClass = InVictoryScreenWidgetClass;
+}
 void UWUIManager::ShowMenu(EWMenuType MenuType)
 {
     if (!OwningController)
@@ -36,50 +46,53 @@ void UWUIManager::ShowMenu(EWMenuType MenuType)
         UE_LOG(LogTemp, Warning, TEXT("WUIManager: Controller not initialized!"));
         return;
     }
-    
+
     if (MenuType == CurrentMenuType)
     {
+        UE_LOG(LogTemp, Verbose, TEXT("WUIManager: Menu %d is already open"), static_cast<int32>(MenuType));
         return; // Меню уже открыто
     }
-    
+
     // Запоминаем предыдущее меню
     PreviousMenuType = CurrentMenuType;
-    
+
     // Скрываем текущее меню
     HideAllMenus();
-    
+
     // Получаем новый виджет
     UWBaseMenuWidget* NewWidget = GetOrCreateWidget(MenuType);
     if (NewWidget)
     {
         // Устанавливаем ссылку на UIManager
         NewWidget->UIManager = this;
-        
+
         // Показываем виджет
         NewWidget->AddToViewport();
-        
+
         // Инициализируем меню
         NewWidget->InitializeMenu();
         NewWidget->OpenMenu();
-        
 
-        
         // Настраиваем ввод для UI
         SetupUIInput();
-        
+
         // Если это меню паузы, ставим игру на паузу
         if (MenuType == EWMenuType::Pause)
         {
             UGameplayStatics::SetGamePaused(OwningController->GetWorld(), true);
         }
+
+        // Обновляем текущий тип меню
+        EWMenuType OldMenuType = CurrentMenuType;
+        CurrentMenuType = MenuType;
+
+        // Вызываем делегат
+        OnMenuChanged.Broadcast(OldMenuType, CurrentMenuType);
     }
-    
-    // Обновляем текущий тип меню
-    EWMenuType OldMenuType = CurrentMenuType;
-    CurrentMenuType = MenuType;
-    
-    // Вызываем делегат
-    OnMenuChanged.Broadcast(OldMenuType, CurrentMenuType);
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("WUIManager: Failed to create menu of type %d"), static_cast<int32>(MenuType));
+    }
 }
 
 void UWUIManager::CloseCurrentMenu()
@@ -89,31 +102,33 @@ void UWUIManager::CloseCurrentMenu()
         UE_LOG(LogTemp, Warning, TEXT("WUIManager: Controller not initialized!"));
         return;
     }
-    
+
+    // Проверяем, открыто ли вообще какое-то меню
+    if (CurrentMenuType == EWMenuType::None)
+    {
+        return;
+    }
+
     // Сохраняем текущий тип меню
     EWMenuType OldMenuType = CurrentMenuType;
-    
-    // Получаем текущий виджет до скрытия
-    UWBaseMenuWidget* CurrentWidget = GetOrCreateWidget(CurrentMenuType);
-    
- 
+
     // Скрываем все меню
     HideAllMenus();
-    
+
     // Снимаем игру с паузы, если это меню паузы или настройки из паузы
-    if (CurrentMenuType == EWMenuType::Pause || 
+    if (CurrentMenuType == EWMenuType::Pause ||
         (CurrentMenuType == EWMenuType::Settings && PreviousMenuType == EWMenuType::Pause))
     {
         UGameplayStatics::SetGamePaused(OwningController->GetWorld(), false);
     }
-    
+
     // Настраиваем ввод для игры
     SetupGameInput();
-    
+
     // Сбрасываем типы меню
     CurrentMenuType = EWMenuType::None;
     PreviousMenuType = EWMenuType::None;
-    
+
     // Вызываем делегат
     OnMenuChanged.Broadcast(OldMenuType, CurrentMenuType);
 }
@@ -241,33 +256,71 @@ UWBaseMenuWidget* UWUIManager::GetOrCreateWidget(EWMenuType MenuType) const
         if (!MainMenuWidget && MainMenuWidgetClass)
         {
             MainMenuWidget = CreateWidget<UWMainMenuWidget>(OwningController, MainMenuWidgetClass);
-            MainMenuWidget->UIManager = const_cast<UWUIManager*>(this);
+            if (MainMenuWidget)
+            {
+                MainMenuWidget->UIManager = const_cast<UWUIManager*>(this);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("WUIManager: Failed to create MainMenuWidget! Class may not be set correctly."));
+                return nullptr;
+            }
         }
         return MainMenuWidget;
-        
+
     case EWMenuType::Pause:
         if (!PauseMenuWidget && PauseMenuWidgetClass)
         {
             PauseMenuWidget = CreateWidget<UWPauseMenuWidget>(OwningController, PauseMenuWidgetClass);
-            PauseMenuWidget->UIManager = const_cast<UWUIManager*>(this);
+            if (PauseMenuWidget)
+            {
+                PauseMenuWidget->UIManager = const_cast<UWUIManager*>(this);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("WUIManager: Failed to create PauseMenuWidget! Class may not be set correctly."));
+                return nullptr;
+            }
         }
         return PauseMenuWidget;
-        
+
     case EWMenuType::Settings:
         if (!SettingsMenuWidget && SettingsMenuWidgetClass)
         {
             SettingsMenuWidget = CreateWidget<UWSettingsMenuWidget>(OwningController, SettingsMenuWidgetClass);
-            SettingsMenuWidget->UIManager = const_cast<UWUIManager*>(this);
+            if (SettingsMenuWidget)
+            {
+                SettingsMenuWidget->UIManager = const_cast<UWUIManager*>(this);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("WUIManager: Failed to create SettingsMenuWidget! Class may not be set correctly."));
+                return nullptr;
+            }
         }
         return SettingsMenuWidget;
-        
+
     case EWMenuType::Victory:
         if (!VictoryScreenWidget && VictoryScreenWidgetClass)
         {
             VictoryScreenWidget = CreateWidget<UWVictoryScreenWidget>(OwningController, VictoryScreenWidgetClass);
-            VictoryScreenWidget->UIManager = const_cast<UWUIManager*>(this);
+            if (VictoryScreenWidget)
+            {
+                VictoryScreenWidget->UIManager = const_cast<UWUIManager*>(this);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("WUIManager: Failed to create VictoryScreenWidget! Class may not be set correctly."));
+                return nullptr;
+            }
         }
         return VictoryScreenWidget;
+
+    default:
+        UE_LOG(LogTemp, Warning, TEXT("WUIManager: Requested unknown menu type: %d"), static_cast<int32>(MenuType));
+        return nullptr;
+    }
+}
         
     //case EWMenuType::Defeat:
     //    if (!DefeatScreenWidget && DefeatScreenWidgetClass)
@@ -277,40 +330,55 @@ UWBaseMenuWidget* UWUIManager::GetOrCreateWidget(EWMenuType MenuType) const
     //    }
     //    return DefeatScreenWidget;
         
-    default:
-        return nullptr;
-    }
-}
+
 
 void UWUIManager::HideAllMenus()
 {
+    // Устанавливаем флаг, что мы находимся в процессе закрытия меню
+    static bool bIsHidingMenus = false;
+
+    // Проверка на рекурсивный вызов
+    if (bIsHidingMenus)
+    {
+        return;
+    }
+
+    bIsHidingMenus = true;
+
+    // Закрываем все виджеты меню, но вызываем только их закрытие без вызова CloseCurrentMenu()
     if (MainMenuWidget)
     {
-        MainMenuWidget->CloseMenu();
+        // Для безопасности - просто установим флаг и вызовем делегат
+        MainMenuWidget->bIsMenuOpen = false;
+        MainMenuWidget->OnMenuClosed.Broadcast();
         MainMenuWidget->RemoveFromParent();
     }
-    
+
     if (PauseMenuWidget)
     {
-        PauseMenuWidget->CloseMenu();
+        PauseMenuWidget->bIsMenuOpen = false;
+        PauseMenuWidget->OnMenuClosed.Broadcast();
         PauseMenuWidget->RemoveFromParent();
     }
-    
+
     if (SettingsMenuWidget)
     {
-        SettingsMenuWidget->CloseMenu();
+        SettingsMenuWidget->bIsMenuOpen = false;
+        SettingsMenuWidget->OnMenuClosed.Broadcast();
         SettingsMenuWidget->RemoveFromParent();
     }
-    
+
     if (VictoryScreenWidget)
     {
-        VictoryScreenWidget->CloseMenu();
+        VictoryScreenWidget->bIsMenuOpen = false;
+        VictoryScreenWidget->OnMenuClosed.Broadcast();
         VictoryScreenWidget->RemoveFromParent();
     }
-    
+
+    bIsHidingMenus = false;
+}
     //if (DefeatScreenWidget)
     //{
     //    DefeatScreenWidget->CloseMenu();
     //    DefeatScreenWidget->RemoveFromParent();
     //}
-}

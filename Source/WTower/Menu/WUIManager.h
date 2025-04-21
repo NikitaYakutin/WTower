@@ -50,7 +50,15 @@ public:
      */
     UFUNCTION(BlueprintCallable, Category = "UI")
     void Initialize(APlayerController* InOwningController);
-
+    /**
+ * Установка классов виджетов для UI менеджера
+ */
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void SetWidgetClasses(
+        TSubclassOf<class UWMainMenuWidget> InMainMenuWidgetClass,
+        TSubclassOf<class UWPauseMenuWidget> InPauseMenuWidgetClass,
+        TSubclassOf<class UWSettingsMenuWidget> InSettingsMenuWidgetClass,
+        TSubclassOf<class UWVictoryScreenWidget> InVictoryScreenWidgetClass);
     /**
      * Показать указанное меню
      * @param MenuType Тип меню для отображения

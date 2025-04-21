@@ -30,7 +30,18 @@ public:
     // Получить UIManager
     UFUNCTION(BlueprintPure, Category = "UI")
     UWUIManager* GetUIManager() const { return UIManager; }
+    // Классы виджетов для UI
+    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    TSubclassOf<class UWMainMenuWidget> MainMenuWidgetClass;
 
+    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    TSubclassOf<class UWPauseMenuWidget> PauseMenuWidgetClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    TSubclassOf<class UWSettingsMenuWidget> SettingsMenuWidgetClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    TSubclassOf<class UWVictoryScreenWidget> VictoryScreenWidgetClass;
 private:
     // В вашем MenuGameMode.h добавьте:
     UPROPERTY(EditDefaultsOnly, Category = "UI")

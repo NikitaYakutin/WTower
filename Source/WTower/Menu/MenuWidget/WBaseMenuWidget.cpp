@@ -2,6 +2,7 @@
 #include "WBaseMenuWidget.h"
 #include "../WUIManager.h"
 #include "../MenuGameMode.h"
+#include <WTower/Menu/MenuPlayerController.h>
 
 
 UWBaseMenuWidget::UWBaseMenuWidget(const FObjectInitializer& ObjectInitializer)
@@ -28,6 +29,27 @@ void UWBaseMenuWidget::InitializeMenu()
         if (MenuGameMode)
         {
             UIManager = MenuGameMode->GetUIManager();
+            if (!UIManager)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("WBaseMenuWidget: UIManager not found in GameMode!"));
+            }
+        }
+        else
+        {
+            // Попытаемся получить через контроллер
+            AMenuPlayerController* PC = Cast<AMenuPlayerController>(GetOwningPlayer());
+            if (PC)
+            {
+                UIManager = PC->GetUIManager();
+                if (!UIManager)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("WBaseMenuWidget: UIManager not found in PlayerController!"));
+                }
+            }
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("WBaseMenuWidget: MenuGameMode not found for menu initialization!"));
+            }
         }
     }
 }
@@ -43,28 +65,15 @@ void UWBaseMenuWidget::OpenMenu()
 
 void UWBaseMenuWidget::CloseMenu()
 {
-    if (UIManager)
-    {
-        // Если у нас есть UIManager, используем его для закрытия меню
-        UIManager->CloseCurrentMenu();
-    }
-    else
-    {
-        // Резервный вариант: используем GameMode
-        AMenuGameMode* MenuGameMode = Cast<AMenuGameMode>(GetWorld()->GetAuthGameMode());
-        if (MenuGameMode)
-        {
-            MenuGameMode->CloseCurrentMenu();
-        }
-        else
-        {
-            // Если ничего не сработало, просто удаляем себя
-            RemoveFromParent();
-        }
-    }
-
+    // Отмечаем, что меню закрыто
     bIsMenuOpen = false;
+
+    // Вызываем делегат закрытия меню
     OnMenuClosed.Broadcast();
+
+    // Не вызываем UIManager->CloseCurrentMenu(), чтобы избежать рекурсии
+    // Вместо этого просто удаляем виджет из родительского элемента
+    RemoveFromParent();
 }
 
 void UWBaseMenuWidget::AddToViewportWithZOrder(int32 ZOrder)
