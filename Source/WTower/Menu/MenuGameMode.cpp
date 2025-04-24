@@ -6,6 +6,7 @@
 #include "MenuPlayerController.h"
 #include "MenuWidget/WDefeatMenuWidget.h"
 #include <WTower/WTowerGameMode.h>
+#include <WTower/Audio/WAudioManagerActor.h>
 
 AMenuGameMode::AMenuGameMode()
 {
@@ -15,6 +16,14 @@ AMenuGameMode::AMenuGameMode()
 void AMenuGameMode::BeginPlay()
 {
     Super::BeginPlay();
+    AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+    if (AudioManager)
+    {
+
+
+        AudioManager->PlayMenuMusic();
+
+    }
 
     // Получаем контроллер игрока
     APlayerController* DefaultPC = GetWorld()->GetFirstPlayerController();
