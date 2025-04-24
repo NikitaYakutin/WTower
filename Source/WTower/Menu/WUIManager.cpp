@@ -1,4 +1,4 @@
-#include "WUIManager.h"
+﻿#include "WUIManager.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
 #include "MenuWidget/WMainMenuWidget.h"
@@ -236,6 +236,15 @@ void UWUIManager::CloseCurrentMenu()
         CleanupWidget(PauseMenuWidget);
         // Unpause the game
         SetGamePaused(false);
+
+        // Добавьте этот код для корректного восстановления режима игры
+        if (bIsInGameplay && PlayerController)
+        {
+            // Устанавливаем режим ввода только для игры
+            FInputModeGameOnly InputMode;
+            PlayerController->SetInputMode(InputMode);
+            PlayerController->bShowMouseCursor = false;
+        }
         break;
     case EWMenuType::Settings:
         CleanupWidget(SettingsMenuWidget);

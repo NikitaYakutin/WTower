@@ -29,7 +29,7 @@ void UWMainMenuWidget::InitializeMenu()
 void UWMainMenuWidget::OnPlayClicked()
 {
     // Open gameplay level
-    UGameplayStatics::OpenLevel(this, FName("GameLevel")); // Use your actual gameplay level name
+    UGameplayStatics::OpenLevel(this, "Challenge"); // Use your actual gameplay level name
 }
 
 void UWMainMenuWidget::OnSettingsClicked()
