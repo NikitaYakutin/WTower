@@ -1,78 +1,63 @@
 #include "WVictoryScreenWidget.h"
 #include "Components/TextBlock.h"
-#include <WTower/WTowerGameInstance.h>
+#include "Kismet/GameplayStatics.h"
+#include "../../WTowerGameInstance.h"
 
-void UWVictoryScreenWidget::InitializeVictoryScreen(int32 FinalScore, float CompletionTime)
+void UWVictoryScreenWidget::InitializeMenu()
 {
-    UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
-    if (!GameInstance)
-    {
-        return;
-    }
+    Super::InitializeMenu();
     
-    // Показываем текущий результат
+    // Get game instance for best score/time
+    UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
+    
+    // Update UI with player's score and time
     if (ScoreText)
     {
-        ScoreText->SetText(FText::FromString(FString::Printf(TEXT("Score: %d"), FinalScore)));
+        ScoreText->SetText(FText::FromString(FString::Printf(TEXT("Score: %d"), Score)));
     }
     
     if (TimeText)
     {
-        int32 Minutes = FMath::FloorToInt(CompletionTime / 60.0f);
-        int32 Seconds = FMath::FloorToInt(CompletionTime - Minutes * 60.0f);
-        TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time: %02d:%02d"), Minutes, Seconds)));
+        TimeText->SetText(FText::FromString(FString::Printf(TEXT("Completion Time: %s"), *FormatTime(CompletionTime))));
     }
     
-    // Получаем лучший счет и время из GameInstance
-    int32 BestScore = GameInstance->GetBestScore();
-    float BestTime = GameInstance->GetBestCompletionTime();
-    
-    // Отображаем лучший счет
-    if (BestScoreText)
+    // Show best score and time if game instance is available
+    if (GameInstance)
     {
-        BestScoreText->SetText(FText::FromString(FString::Printf(TEXT("Best Score: %d"), BestScore)));
-    }
-    
-    // Отображаем лучшее время
-    if (BestTimeText)
-    {
-        if (BestTime < 999999.0f)
+        if (BestScoreText)
         {
-            int32 BestMinutes = FMath::FloorToInt(BestTime / 60.0f);
-            int32 BestSeconds = FMath::FloorToInt(BestTime - BestMinutes * 60.0f);
-            BestTimeText->SetText(FText::FromString(FString::Printf(TEXT("Best Time: %02d:%02d"), BestMinutes, BestSeconds)));
+            BestScoreText->SetText(FText::FromString(FString::Printf(TEXT("Best Score: %d"), GameInstance->GetBestScore())));
         }
-        else
+        
+        if (BestTimeText)
         {
-            BestTimeText->SetText(FText::FromString(TEXT("Best Time: --:--")));
+            BestTimeText->SetText(FText::FromString(FString::Printf(TEXT("Best Time: %s"), *FormatTime(GameInstance->GetBestCompletionTime()))));
         }
     }
-    
-    // Проверяем, был ли установлен новый рекорд
-    bool bIsNewScoreRecord = (FinalScore >= BestScore);
-    bool bIsNewTimeRecord = (CompletionTime > 0.0f && CompletionTime <= BestTime);
-    
-    // Показываем сообщение о новом рекорде
-    if (NewRecordText)
-    {
-        if (bIsNewScoreRecord && bIsNewTimeRecord)
-        {
-            NewRecordText->SetText(FText::FromString(TEXT("NEW RECORD! Best Score and Best Time!")));
-            NewRecordText->SetVisibility(ESlateVisibility::Visible);
-        }
-        else if (bIsNewScoreRecord)
-        {
-            NewRecordText->SetText(FText::FromString(TEXT("NEW RECORD! Best Score!")));
-            NewRecordText->SetVisibility(ESlateVisibility::Visible);
-        }
-        else if (bIsNewTimeRecord)
-        {
-            NewRecordText->SetText(FText::FromString(TEXT("NEW RECORD! Best Time!")));
-            NewRecordText->SetVisibility(ESlateVisibility::Visible);
-        }
-        else
-        {
-            NewRecordText->SetVisibility(ESlateVisibility::Hidden);
-        }
-    }
+}
+
+void UWVictoryScreenWidget::OnPlayAgainClicked()
+{
+    // Reload current level
+    UGameplayStatics::OpenLevel(this, FName(*UGameplayStatics::GetCurrentLevelName(this)));
+}
+
+void UWVictoryScreenWidget::OnMainMenuClicked()
+{
+    // Return to main menu level
+    UGameplayStatics::OpenLevel(this, FName("MainMenu"));
+}
+
+void UWVictoryScreenWidget::SetScoreAndTime(int32 InScore, float InCompletionTime)
+{
+    Score = InScore;
+    CompletionTime = InCompletionTime;
+}
+
+FString UWVictoryScreenWidget::FormatTime(float TimeInSeconds) const
+{
+    int32 Minutes = FMath::FloorToInt(TimeInSeconds / 60.0f);
+    int32 Seconds = FMath::FloorToInt(TimeInSeconds) % 60;
+
+    return FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
 }

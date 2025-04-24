@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "WTowerHUDWidget.h"
+#include "Audio/WAudioManagerActor.h"
 
 //----------------------------------------------------------------------------------------
 // КОНСТРУКТОР И ИНИЦИАЛИЗАЦИЯ
@@ -320,7 +321,7 @@ void APlayerCharacter::Landed(const FHitResult& Hit)
     Super::Landed(Hit);
 
     // Воспроизводим звук приземления
-    PlayCharacterSound(LandSound);
+
 
     // Планируем следующий прыжок с небольшой задержкой
     // Задержка в 0.1 секунды необходима для того, чтобы:
@@ -348,8 +349,11 @@ void APlayerCharacter::PerformJump()
         Velocity.Y = 0.0f;
         GetCharacterMovement()->Velocity = Velocity;
 
-        // Воспроизводим звук прыжка
-        PlayCharacterSound(JumpSound);
+        AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+        if (AudioManager)
+        {
+            AudioManager->PlaySoundAtLocation(JumpSound,GetActorLocation());
+        }
 
         // Вызываем базовую функцию Jump
         Jump();
@@ -364,17 +368,7 @@ void APlayerCharacter::PerformJump()
 // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 //----------------------------------------------------------------------------------------
 
-void APlayerCharacter::PlayCharacterSound(USoundBase* Sound)
-{
-    if (Sound)
-    {
-        UGameplayStatics::PlaySoundAtLocation(
-            this,
-            Sound,
-            GetActorLocation()
-        );
-    }
-}
+
 
 //----------------------------------------------------------------------------------------
 // МЕТОДЫ ИГРОВОЙ СТАТИСТИКИ

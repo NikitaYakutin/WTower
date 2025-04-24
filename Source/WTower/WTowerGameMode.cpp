@@ -8,6 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Audio/WAudioManagerActor.h"
 #include "WTowerGameInstance.h"
+#include "Menu/MenuGameMode.h"
+#include "Menu/MenuPlayerController.h"
 AWTowerGameMode::AWTowerGameMode()
 {
     // Set default pawn class to our player character
@@ -40,20 +42,77 @@ AWTowerGameMode::AWTowerGameMode()
 void AWTowerGameMode::BeginPlay()
 {
     Super::BeginPlay();
+
+    // Инициализация аудио менеджера
     AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
     if (AudioManager)
     {
-        AudioManager->PlayGameplayMusic();
+
+
+            AudioManager->PlayGameplayMusic();
+
     }
+
     UE_LOG(LogTemp, Log, TEXT("WTowerGameMode: Game started"));
+
     AWTowerGameState* WTowerGameState = Cast<AWTowerGameState>(GameState);
     if (WTowerGameState)
     {
         // Подписываемся на событие завершения игры
         WTowerGameState->OnGameCompleted.AddDynamic(this, &AWTowerGameMode::OnGameCompleted);
     }
-}
 
+    // Создаем и инициализируем UIManager
+    if (UIManagerClass)
+    {
+        UIManager = NewObject<UWUIManager>(this, UIManagerClass);
+    }
+    else
+    {
+        UIManager = NewObject<UWUIManager>(this);
+    }
+
+    // Получаем контроллер игрока
+    APlayerController* DefaultPC = GetWorld()->GetFirstPlayerController();
+    if (DefaultPC)
+    {
+        // Инициализируем UIManager с контроллером
+        UIManager->Initialize(DefaultPC);
+
+        // Устанавливаем классы виджетов
+        UIManager->SetWidgetClasses(
+            MainMenuWidgetClass,
+            PauseMenuWidgetClass,
+            SettingsMenuWidgetClass,
+            VictoryScreenWidgetClass,
+            DefeatMenuWidgetClass,
+            HUDWidgetClass
+        );
+
+
+            // В игровом уровне показываем HUD
+            UIManager->ShowHUD();
+
+            // Устанавливаем режим ввода для игры
+            FInputModeGameOnly InputMode;
+            DefaultPC->SetInputMode(InputMode);
+            DefaultPC->SetShowMouseCursor(false);
+        
+
+        // Устанавливаем UIManager в контроллере
+        AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(DefaultPC);
+        if (PC)
+        {
+            PC->SetUIManager(UIManager);
+        }
+
+
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("WTowerGameMode: No player controller available!"));
+    }
+}
 AActor* AWTowerGameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName)
 {
     // First try the default implementation which uses PlayerStart actors
@@ -139,40 +198,58 @@ void AWTowerGameMode::OnGameCompleted(float CompletionTime)
 // Методы для завершения игры
 void AWTowerGameMode::EndGameWithVictory()
 {
-    // Проверяем, не завершена ли уже игра
+    // Check if game is already ended
     if (bGameEnded)
     {
         return;
     }
 
     bGameEnded = true;
+    UGameplayStatics::SetGamePaused(this, true);
     UpdateBestScoreAndTime();
     UE_LOG(LogTemp, Log, TEXT("WTowerGameMode: Game ended with VICTORY"));
 
-    // Вызываем делегат для уведомления о победе
-    OnGameOver.Broadcast(true, TEXT("Победа!"));
+    // Show victory screen
+    AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+    if (PC && PC->GetUIManager())
+    {
+        AWTowerGameState* WTowerGameState = Cast<AWTowerGameState>(GameState);
+        if (WTowerGameState)
+        {
+            PC->GetUIManager()->ShowVictoryScreen(
+                WTowerGameState->GetScore(), 
+                WTowerGameState->GetCompletionTime()
+            );
+        }
+    }
 
-    // Здесь можно добавить код для показа экрана победы,
-    // воспроизведения музыки, анимаций и т.д.
+    // Broadcast delegate for victory
+    OnGameOver.Broadcast(true, TEXT("Победа!"));
 }
 
 void AWTowerGameMode::EndGameWithDefeat(FString Reason)
 {
-    // Проверяем, не завершена ли уже игра
+    // Check if game is already ended
     if (bGameEnded)
     {
         return;
     }
 
     bGameEnded = true;
+    UGameplayStatics::SetGamePaused(this, true);
     UpdateBestScoreAndTime();
     UE_LOG(LogTemp, Log, TEXT("WTowerGameMode: Game ended with DEFEAT. Reason: %s"), *Reason);
 
-    // Вызываем делегат для уведомления о поражении
+    // Show defeat screen
+    AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+    if (PC && PC->GetUIManager())
+    {
+        PC->GetUIManager()->ShowDefeatScreen(Reason);
+    }
+
+    // Broadcast delegate for defeat
     OnGameOver.Broadcast(false, Reason);
 
-    // Здесь можно добавить код для показа экрана поражения,
-    // воспроизведения звуков, анимаций и т.д.
 }
 void AWTowerGameMode::UpdateBestScoreAndTime()
 {
@@ -217,4 +294,30 @@ void AWTowerGameMode::UpdateBestScoreAndTime()
 
     // Save game data to ensure everything is persisted
     GameInstance->SaveGameData();
+}
+
+// Добавьте следующие методы в конец файла:
+
+void AWTowerGameMode::ShowMenu(EWMenuType MenuType)
+{
+    if (UIManager)
+    {
+        UIManager->ShowMenu(MenuType);
+    }
+}
+
+void AWTowerGameMode::CloseCurrentMenu()
+{
+    if (UIManager)
+    {
+        UIManager->CloseCurrentMenu();
+    }
+}
+
+void AWTowerGameMode::ReturnToPreviousMenu()
+{
+    if (UIManager)
+    {
+        UIManager->ReturnToPreviousMenu();
+    }
 }

@@ -1,80 +1,45 @@
-﻿#include "WPauseMenuWidget.h"
-#include "Components/TextBlock.h"
+#include "WPauseMenuWidget.h"
 #include "Kismet/GameplayStatics.h"
-#include <WTower/WTowerGameState.h>
-#include <WTower/Menu/MenuGameMode.h>
+#include "../WUIManager.h"
 #include <WTower/WTowerPlayerController.h>
-
-
 
 void UWPauseMenuWidget::InitializeMenu()
 {
     Super::InitializeMenu();
-    
-    // Default main menu level name if not set in editor
-    if (MainMenuLevelName.IsNone())
+}
+
+void UWPauseMenuWidget::OnResumeClicked()
+{
+    if (UIManager)
     {
-        MainMenuLevelName = TEXT("MainMenu");
+        UIManager->CloseCurrentMenu();
+        UIManager->ShowHUD();
     }
-    
-    // Update current score and time
-    AWTowerGameState* GameState = Cast<AWTowerGameState>(UGameplayStatics::GetGameState(this));
-    if (GameState)
+    else
     {
-        if (CurrentScoreText)
+        // Fallback for legacy code
+        AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
+        if (PC)
         {
-            int32 Score = GameState->GetScore();
-            CurrentScoreText->SetText(FText::FromString(FString::Printf(TEXT("Current Score: %d"), Score)));
+            PC->ClosePauseMenu();
         }
-        
-        if (CurrentTimeText)
+        else
         {
-            float GameTime = GameState->GetGameTime();
-            int32 Minutes = FMath::FloorToInt(GameTime / 60.0f);
-            int32 Seconds = FMath::FloorToInt(GameTime - Minutes * 60.0f);
-            CurrentTimeText->SetText(FText::FromString(FString::Printf(TEXT("Current Time: %02d:%02d"), Minutes, Seconds)));
+            RemoveFromParent();
+            UGameplayStatics::SetGamePaused(this, false);
         }
     }
 }
 
-void UWPauseMenuWidget::OpenMenu()
-{
-    Super::OpenMenu();
-    
-    // Pause the game
-    UGameplayStatics::SetGamePaused(this, true);
-    
-    // Show mouse cursor
-    if (GetOwningPlayer())
-    {
-        GetOwningPlayer()->SetShowMouseCursor(true);
-    }
-}
-
-void UWPauseMenuWidget::CloseMenu()
-{
-    Super::CloseMenu();
-    
-    // Resume the game
-    UGameplayStatics::SetGamePaused(this, false);
-    
-    // Hide mouse cursor
-    if (GetOwningPlayer())
-    {
-        GetOwningPlayer()->SetShowMouseCursor(false);
-    }
-}
-// Метод для кнопки "Настройки"
 void UWPauseMenuWidget::OnSettingsClicked()
 {
     if (UIManager)
     {
-        // Если у нас есть UIManager, используем его для открытия настроек
         UIManager->OpenSettings();
     }
     else
     {
-        // Резервный вариант: старая логика
+        // Fallback for legacy code
         AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
         if (PC)
         {
@@ -83,41 +48,16 @@ void UWPauseMenuWidget::OnSettingsClicked()
     }
 }
 
-void UWPauseMenuWidget::OnResumeClicked()
+void UWPauseMenuWidget::OnRestartClicked()
 {
-    if (UIManager)
-    {
-        // Если у нас есть UIManager, используем его для закрытия меню паузы
-        UIManager->CloseCurrentMenu();
-    }
-    else
-    {
-        // Резервный вариант: старая логика
-        AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
-        if (PC)
-        {
-            PC->ClosePauseMenu();
-        }
-    }
+    // Unpause and reload current level
+    UGameplayStatics::SetGamePaused(this, false);
+    UGameplayStatics::OpenLevel(this, FName(*UGameplayStatics::GetCurrentLevelName(this)));
 }
 
 void UWPauseMenuWidget::OnMainMenuClicked()
 {
-    if (UIManager)
-    {
-        // Если у нас есть UIManager, используем его для закрытия меню
-        UIManager->CloseCurrentMenu();
-    }
-    else
-    {
-        // Резервный вариант: старая логика
-        AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
-        if (PC)
-        {
-            PC->ClosePauseMenu();
-        }
-    }
-
-    // Переходим на уровень с главным меню
-    UGameplayStatics::OpenLevel(this, MainMenuLevelName);
+    // Unpause and return to main menu
+    UGameplayStatics::SetGamePaused(this, false);
+    UGameplayStatics::OpenLevel(this, FName("MainMenu"));
 }

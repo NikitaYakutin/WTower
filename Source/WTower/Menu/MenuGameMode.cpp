@@ -4,25 +4,24 @@
 #include "../WTowerPlayerController.h"
 #include "WUIManager.h"
 #include "MenuPlayerController.h"
-
+#include "MenuWidget/WDefeatMenuWidget.h"
+#include <WTower/WTowerGameMode.h>
 
 AMenuGameMode::AMenuGameMode()
 {
-    // Конструктор по умолчанию
+    // Default constructor
 }
 
-// В вашем MenuGameMode.cpp
-// Модифицируйте метод BeginPlay:
 void AMenuGameMode::BeginPlay()
 {
     Super::BeginPlay();
 
-    // Получаем контроллер игрока напрямую
+    // Получаем контроллер игрока
     APlayerController* DefaultPC = GetWorld()->GetFirstPlayerController();
     AMenuPlayerController* PC = Cast<AMenuPlayerController>(DefaultPC);
     if (PC)
     {
-        // Создаем экземпляр UI Manager
+        // Создаём UI Manager
         if (UIManagerClass)
         {
             UIManager = NewObject<UWUIManager>(this, UIManagerClass);
@@ -32,17 +31,23 @@ void AMenuGameMode::BeginPlay()
             UIManager = NewObject<UWUIManager>(this);
         }
 
-        // Инициализируем UI Manager с контроллером
+        // Инициализируем UIManager с контроллером
         UIManager->Initialize(PC);
 
-        // Устанавливаем классы виджетов для UIManager
-        UIManager->SetWidgetClasses(MainMenuWidgetClass, PauseMenuWidgetClass,
-            SettingsMenuWidgetClass, VictoryScreenWidgetClass);
+        // Устанавливаем классы виджетов
+        UIManager->SetWidgetClasses(
+            MainMenuWidgetClass,
+            PauseMenuWidgetClass,
+            SettingsMenuWidgetClass,
+            VictoryScreenWidgetClass,
+            DefeatMenuWidgetClass,
+            HUDWidgetClass
+        );
 
-        // Устанавливаем ссылку на UIManager в контроллере для удобства доступа
+        // Устанавливаем UIManager в контроллере
         PC->SetUIManager(UIManager);
 
-        // Показываем главное меню при запуске
+        // Показываем главное меню
         UIManager->ShowMenu(EWMenuType::Main);
     }
     else

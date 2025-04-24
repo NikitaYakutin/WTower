@@ -1,53 +1,35 @@
-﻿#include "WMainMenuWidget.h"
-#include "WSettingsMenuWidget.h"
+#include "WMainMenuWidget.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
-#include "WBaseMenuWidget.h"
-#include <WTower/Menu/MenuPlayerController.h>
-#include <WTower/Menu/MenuGameMode.h>
+#include "../../WTowerGameInstance.h"
 #include "../WUIManager.h"
+
 void UWMainMenuWidget::InitializeMenu()
 {
     Super::InitializeMenu();
     
-    // Get game instance
-    GameInstanceRef = Cast<UWTowerGameInstance>(GetGameInstance());
+    // Get game instance for best score/time
+    UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
     
-    if (GameInstanceRef)
+    // Show best score and time if game instance is available
+    if (GameInstance)
     {
-        // Update best score and time displays
         if (BestScoreText)
         {
-            int32 BestScore = GameInstanceRef->GetBestScore();
-            BestScoreText->SetText(FText::FromString(FString::Printf(TEXT("Best Score: %d"), BestScore)));
+            BestScoreText->SetText(FText::FromString(FString::Printf(TEXT("Best Score: %d"), GameInstance->GetBestScore())));
         }
         
         if (BestTimeText)
         {
-            float BestTime = GameInstanceRef->GetBestCompletionTime();
-            if (BestTime < 999999.0f)
-            {
-                int32 Minutes = FMath::FloorToInt(BestTime / 60.0f);
-                int32 Seconds = FMath::FloorToInt(BestTime - Minutes * 60.0f);
-                BestTimeText->SetText(FText::FromString(FString::Printf(TEXT("Best Time: %02d:%02d"), Minutes, Seconds)));
-            }
-            else
-            {
-                BestTimeText->SetText(FText::FromString(TEXT("Best Time: --:--")));
-            }
+            BestTimeText->SetText(FText::FromString(FString::Printf(TEXT("Best Time: %s"), *FormatTime(GameInstance->GetBestCompletionTime()))));
         }
     }
-    
-    // Default level name if not set in editor
-    if (GameLevelName.IsNone())
-    {
-        GameLevelName = TEXT("Challenge");
-    }
 }
-void UWMainMenuWidget::OnStartGameClicked()
+
+void UWMainMenuWidget::OnPlayClicked()
 {
-    // Загружаем основной игровой уровень
-    UGameplayStatics::OpenLevel(GetWorld(), GameLevelName);
+    // Open gameplay level
+    UGameplayStatics::OpenLevel(this, FName("GameLevel")); // Use your actual gameplay level name
 }
 
 void UWMainMenuWidget::OnSettingsClicked()
@@ -58,10 +40,26 @@ void UWMainMenuWidget::OnSettingsClicked()
     }
 }
 
-void UWMainMenuWidget::OnExitClicked()
+void UWMainMenuWidget::OnQuitClicked()
 {
-    // Выход из игры
-    UKismetSystemLibrary::QuitGame(GetWorld(), GetOwningPlayer(), EQuitPreference::Quit, false);
+    // Quit the game
+    APlayerController* PC = GetOwningPlayer();
+    if (PC)
+    {
+        PC->ConsoleCommand("quit");
+    }
 }
 
+FString UWMainMenuWidget::FormatTime(float TimeInSeconds) const
+{
+    // Handle the default large value in the game instance
+    if (TimeInSeconds >= 999990.0f)
+    {
+        return TEXT("--:--");
+    }
+    
+    int32 Minutes = FMath::FloorToInt(TimeInSeconds / 60.0f);
+    int32 Seconds = FMath::FloorToInt(TimeInSeconds) % 60;
 
+    return FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+}

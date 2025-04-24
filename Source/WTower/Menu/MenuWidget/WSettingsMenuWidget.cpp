@@ -3,9 +3,10 @@
 #include "Components/ComboBoxString.h"
 #include "Components/CheckBox.h"
 #include "Kismet/GameplayStatics.h"
-#include <WTower/WTowerGameInstance.h>
-#include <WTower/WTowerPlayerController.h>
-#include <WTower/Menu/MenuGameMode.h>
+#include "../../WTowerGameInstance.h"
+#include "../../WTowerPlayerController.h"
+#include "../MenuGameMode.h"
+#include "../WUIManager.h"
 
 void UWSettingsMenuWidget::InitializeMenu()
 {
@@ -13,7 +14,7 @@ void UWSettingsMenuWidget::InitializeMenu()
     
     // Get game instance
     GameInstanceRef = Cast<UWTowerGameInstance>(GetGameInstance());
-    bOpenedFromPauseMenu = true;
+    
     if (!GameInstanceRef)
     {
         UE_LOG(LogTemp, Error, TEXT("Failed to get game instance in settings menu!"));
@@ -77,7 +78,60 @@ void UWSettingsMenuWidget::InitializeMenu()
         FullscreenCheckBox->SetCheckedState(bCurrentFullscreen ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
     }
 }
+// ???????? ???? ????? ??? ????????? ????????? ????? NativeConstruct
+void UWSettingsMenuWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
 
+    // ???????? ????????????? ????
+    InitializeMenu();
+
+    // ??????????? ???????? ??? ???????? UI
+    if (MasterVolumeSlider)
+    {
+        MasterVolumeSlider->OnValueChanged.AddDynamic(this, &UWSettingsMenuWidget::UpdateMasterVolume);
+    }
+
+    if (MusicVolumeSlider)
+    {
+        MusicVolumeSlider->OnValueChanged.AddDynamic(this, &UWSettingsMenuWidget::UpdateMusicVolume);
+    }
+
+    if (SFXVolumeSlider)
+    {
+        SFXVolumeSlider->OnValueChanged.AddDynamic(this, &UWSettingsMenuWidget::UpdateSFXVolume);
+    }
+
+    if (ResolutionComboBox)
+    {
+        ResolutionComboBox->OnSelectionChanged.AddDynamic(this, &UWSettingsMenuWidget::OnResolutionSelected);
+    }
+
+    if (FullscreenCheckBox)
+    {
+        FullscreenCheckBox->OnCheckStateChanged.AddDynamic(this, &UWSettingsMenuWidget::OnFullscreenCheckBoxChanged);
+    }
+
+
+    // ????? ????? ?????? ????? GetWidgetFromName, ???? ? ??? ??? ????????? meta = (BindWidget)
+    UButton* ApplyButton = Cast<UButton>(GetWidgetFromName(TEXT("ApplyButton")));
+    if (ApplyButton)
+    {
+        ApplyButton->OnClicked.AddDynamic(this, &UWSettingsMenuWidget::ApplySettings);
+    }
+
+    UButton* BackButton = Cast<UButton>(GetWidgetFromName(TEXT("BackButton")));
+    if (BackButton)
+    {
+        BackButton->OnClicked.AddDynamic(this, &UWSettingsMenuWidget::OnBackButtonClicked);
+    }
+
+    UButton* ResetButton = Cast<UButton>(GetWidgetFromName(TEXT("ResetButton")));
+    if (ResetButton)
+    {
+        ResetButton->OnClicked.AddDynamic(this, &UWSettingsMenuWidget::ResetToDefaults);
+    }
+}
 void UWSettingsMenuWidget::ApplySettings()
 {
     if (!GameInstanceRef)
@@ -95,10 +149,19 @@ void UWSettingsMenuWidget::ApplySettings()
     // Apply immediately
     GameInstanceRef->ApplyAudioSettings();
     GameInstanceRef->ApplyWindowSettings();
-    // Сохраняем настройки в файл
+    
+    // Save settings to disk
     GameInstanceRef->SaveGameData();
-    OnBackButtonClicked();
-
+    
+    // Return to previous menu
+    if (UIManager)
+    {
+        UIManager->ReturnToPreviousMenu();
+    }
+    else
+    {
+        OnBackButtonClicked();
+    }
 }
 
 void UWSettingsMenuWidget::ResetToDefaults()
@@ -163,20 +226,17 @@ void UWSettingsMenuWidget::SetFullscreenMode(bool bFullscreen)
 {
     bCurrentFullscreen = bFullscreen;
 }
-// В методе OnBackButtonClicked в WSettingsMenuWidget.cpp
-// Метод для кнопки "Назад"
-// Изменения в существующем коде
 
 void UWSettingsMenuWidget::OnBackButtonClicked()
 {
     if (UIManager)
     {
-        // Если у нас есть UIManager, используем его для возврата к предыдущему меню
+        // Use UIManager to return to previous menu
         UIManager->ReturnToPreviousMenu();
     }
     else
     {
-        // Резервный вариант: старая логика
+        // Fallback for legacy code
         AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(GetOwningPlayer());
         if (PC && PC->bIsSettingsOpenFromPause)
         {
@@ -196,3 +256,29 @@ void UWSettingsMenuWidget::OnBackButtonClicked()
         }
     }
 }
+
+void UWSettingsMenuWidget::OnResolutionSelected(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+    // Parse resolution from string (e.g., "1920x1080")
+    TArray<FString> Dimensions;
+    SelectedItem.ParseIntoArray(Dimensions, TEXT("x"), true);
+    
+    if (Dimensions.Num() == 2)
+    {
+        int32 Width = FCString::Atoi(*Dimensions[0]);
+        int32 Height = FCString::Atoi(*Dimensions[1]);
+        
+        CurrentResolution = FIntPoint(Width, Height);
+    }
+}
+
+
+// Обработчик для чекбокса с правильной сигнатурой
+// Replace the existing OnFullscreenCheckBoxChanged function
+void UWSettingsMenuWidget::OnFullscreenCheckBoxChanged(bool bIsChecked)
+{
+    UE_LOG(LogTemp, Log, TEXT("OnFullscreenCheckBoxChanged called with value: %s"),
+        bIsChecked ? TEXT("Enabled") : TEXT("Disabled"));
+    SetFullscreenMode(bIsChecked);
+}
+

@@ -1,15 +1,11 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "WBaseMenuWidget.h"
-#include "WSettingsMenuWidget.h"
-#include <WTower/WTowerGameInstance.h>
 #include "WMainMenuWidget.generated.h"
 
-
-
 /**
- * Main menu widget for game
+ * Main menu widget displayed at game start
  */
 UCLASS()
 class WTOWER_API UWMainMenuWidget : public UWBaseMenuWidget
@@ -18,31 +14,26 @@ class WTOWER_API UWMainMenuWidget : public UWBaseMenuWidget
 
 public:
     virtual void InitializeMenu() override;
-    
-    // Функции для кнопок меню
-    UFUNCTION(BlueprintCallable, Category = "Menu")
-    void OnStartGameClicked();
 
-    UFUNCTION(BlueprintCallable, Category = "Menu")
+    // Button click handlers
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void OnPlayClicked();
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
     void OnSettingsClicked();
 
-    UFUNCTION(BlueprintCallable, Category = "Menu")
-    void OnExitClicked();
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void OnQuitClicked();
 
 protected:
-    // UI Components - to be bound in Blueprint
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Menu")
+    // UI Components to be bound in Blueprint
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "UI")
     class UTextBlock* BestScoreText;
-    
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Menu")
+
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "UI")
     class UTextBlock* BestTimeText;
-    
 
-    UPROPERTY()
-    UWTowerGameInstance* GameInstanceRef;
-    
-    // Level to load when starting the game
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Menu")
-    FName GameLevelName;
-
+private:
+    // Format time as MM:SS
+    FString FormatTime(float TimeInSeconds) const;
 };

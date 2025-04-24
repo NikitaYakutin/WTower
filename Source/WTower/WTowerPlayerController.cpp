@@ -4,8 +4,9 @@
 #include "GameFramework/PlayerInput.h"
 #include "Engine/World.h"
 #include "Menu/MenuWidget/WPauseMenuWidget.h"
-#include <Kismet/GameplayStatics.h>
+#include "Kismet/GameplayStatics.h"
 #include "Menu/MenuGameMode.h"
+#include "Menu/WUIManager.h"
 
 AWTowerPlayerController::AWTowerPlayerController()
 {
@@ -13,7 +14,7 @@ AWTowerPlayerController::AWTowerPlayerController()
     bShowMouseCursor = false;
     bEnableClickEvents = false;
     bEnableMouseOverEvents = false;
-
+    bIsSettingsOpenFromPause = false;
 
 }
 
@@ -31,21 +32,13 @@ void AWTowerPlayerController::OnPossess(APawn* InPawn)
 void AWTowerPlayerController::BeginPlay()
 {
     Super::BeginPlay();
-
-    // Создаём UIManager заранее, чтобы он был готов к использованию
-    if (!UIManager)
-    {
-        UIManager = NewObject<UWUIManager>(this);
-        UIManager->Initialize(this);
-
-        // Устанавливаем классы виджетов
-        UIManager->SetWidgetClasses(nullptr, PauseMenuWidgetClass,
-            SettingsMenuWidgetClass, VictoryScreenWidgetClass);
-    }
-
+    
+  
+    
     // Set default controller input mode to game only
     FInputModeGameOnly InputMode;
     SetInputMode(InputMode);
+    
     // Hide the mouse cursor by default
     SetShowMouseCursor(false);
 }
@@ -55,60 +48,28 @@ void AWTowerPlayerController::SetupInputComponent()
     Super::SetupInputComponent();
     
     // All core movement and camera controls are set up in PlayerCharacter
-    // No need to duplicate bindings here since your character already handles:
-    // - MoveForward, MoveRight
-    // - Turn, LookUp
-    // - CameraZoom
     
-    // You can add additional controller-specific input handling here if needed
-    // For example, menu access, pause game, etc.
-     // Add pause game key binding
+    // Add pause game key binding
     InputComponent->BindAction("TogglePause", IE_Pressed, this, &AWTowerPlayerController::TogglePauseMenu);
 }
-// Реализация TogglePauseMenu
+
 void AWTowerPlayerController::TogglePauseMenu()
 {
-    // Проверяем, есть ли у нас UI Manager
+    // Check if we have UIManager
     if (!UIManager)
     {
         UIManager = NewObject<UWUIManager>(this);
         UIManager->Initialize(this);
-        UE_LOG(LogTemp, Warning, TEXT("WTowerPlayerController::TogglePauseMenu: Создан новый UIManager"));
     }
-
-    // Получаем классы виджетов из GameInstance
-    UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
-    if (GameInstance)
-    {
-        TSubclassOf<UWPauseMenuWidget> PauseClass;
-        TSubclassOf<UWSettingsMenuWidget> SettingsClass;
-        TSubclassOf<UWVictoryScreenWidget> VictoryClass;
-
-
-        if (PauseClass)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("WTowerPlayerController::TogglePauseMenu: Получен PauseMenuWidgetClass из GameInstance: %s"),
-                *PauseClass->GetName());
-
-            // Устанавливаем класс для UIManager
-            UIManager->SetWidgetClasses(nullptr, PauseClass, SettingsClass, VictoryClass);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("WTowerPlayerController::TogglePauseMenu: Не удалось получить PauseMenuWidgetClass из GameInstance!"));
-        }
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("WTowerPlayerController::TogglePauseMenu: Не удалось получить GameInstance!"));
-    }
-
-    // Используем UI Manager для переключения меню паузы
+    
+    // Use UIManager to toggle pause menu
     UIManager->TogglePauseMenu();
 }
-// Добавляем дополнительные методы для работы с меню
+
 void AWTowerPlayerController::OpenSettingsFromPause()
 {
+    bIsSettingsOpenFromPause = true;
+    
     if (UIManager)
     {
         UIManager->OpenSettings();
@@ -117,6 +78,8 @@ void AWTowerPlayerController::OpenSettingsFromPause()
 
 void AWTowerPlayerController::ReturnToPauseFromSettings()
 {
+    bIsSettingsOpenFromPause = false;
+    
     if (UIManager)
     {
         UIManager->ReturnToPreviousMenu();
@@ -128,5 +91,10 @@ void AWTowerPlayerController::ClosePauseMenu()
     if (UIManager)
     {
         UIManager->CloseCurrentMenu();
+        UIManager->ShowHUD(); // Make sure HUD is visible
     }
+}
+void AWTowerPlayerController::SetUIManager(UWUIManager* InUIManager)
+{
+    UIManager = InUIManager;
 }

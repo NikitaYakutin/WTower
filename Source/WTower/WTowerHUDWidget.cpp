@@ -2,12 +2,13 @@
 #include "WTowerGameState.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "Menu/WUIManager.h"
 
 void UWTowerHUDWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    // Инициализируем отображаемые значения
+    // Initialize displayed values
     UpdateStats();
 }
 
@@ -15,7 +16,7 @@ void UWTowerHUDWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
 
-    // Обновляем статистику каждый кадр
+    // Update statistics every frame
     UpdateStats();
 }
 
@@ -30,28 +31,28 @@ void UWTowerHUDWidget::UpdateStats()
     if (!GameState)
         return;
 
-    // Обновляем счет
+    // Update score
     if (ScoreText)
     {
-        ScoreText->SetText(FText::FromString(FString::Printf(TEXT("Счет: %d"), GameState->GetScore())));
+        ScoreText->SetText(FText::FromString(FString::Printf(TEXT("Score: %d"), GameState->GetScore())));
     }
 
-    // Обновляем время
+    // Update time
     if (TimeText)
     {
-        TimeText->SetText(FText::FromString(FString::Printf(TEXT("Время: %s"), *FormatTime(180.0f - (GameState->GetGameTime())))));
+        TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time: %s"), *FormatTime(180.0f - (GameState->GetGameTime())))));
     }
 
-    // Обновляем текущую высоту
+    // Update current height
     if (HeightText)
     {
-        HeightText->SetText(FText::FromString(FString::Printf(TEXT("Высота: %.1f м"), GameState->GetPlayerCurrentHeight() / 100.0f)));
+        HeightText->SetText(FText::FromString(FString::Printf(TEXT("Height: %.1f m"), GameState->GetPlayerCurrentHeight() / 100.0f)));
     }
 
-    // Обновляем максимальную высоту
+    // Update maximum height
     if (MaxHeightText)
     {
-        MaxHeightText->SetText(FText::FromString(FString::Printf(TEXT("Макс. высота: %.1f м"), GameState->GetPlayerMaxHeight() / 100.0f)));
+        MaxHeightText->SetText(FText::FromString(FString::Printf(TEXT("Max Height: %.1f m"), GameState->GetPlayerMaxHeight() / 100.0f)));
     }
 }
 

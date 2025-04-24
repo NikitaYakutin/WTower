@@ -1,7 +1,8 @@
 #include "WAudioManagerActor.h"
 #include "Kismet/GameplayStatics.h"
-
 #include <WTower/WTowerGameInstance.h>
+
+
 
 
 AWAudioManagerActor::AWAudioManagerActor()
@@ -15,7 +16,7 @@ AWAudioManagerActor::AWAudioManagerActor()
 
     // Инициализация значений громкости
     MasterVolume = 1.0f;
-    MusicVolume = 0.7f;
+    MusicVolume = 0.5f;
     SFXVolume = 1.0f;
     bMuteAudio = false;
 }

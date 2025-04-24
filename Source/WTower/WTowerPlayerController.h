@@ -24,7 +24,9 @@ public:
 
         // Toggle pause menu
     void TogglePauseMenu();
-
+    // Добавьте метод:
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    void SetUIManager(UWUIManager* InUIManager);
     // Functions to manage menu navigation
     UFUNCTION(BlueprintCallable, Category = "UI")
     void OpenSettingsFromPause();
@@ -39,7 +41,9 @@ public:
     UPROPERTY()
     bool bIsSettingsOpenFromPause;
 
-
+    // Get the UI Manager
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    UWUIManager* GetUIManager() const { return UIManager; }
 
 
     // Called when the controller possesses a pawn
@@ -61,7 +65,10 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
     TSubclassOf<class UWVictoryScreenWidget> VictoryScreenWidgetClass;
+    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
+    TSubclassOf<class UWMainMenuWidget> MainMenuWidgetClass;
     // UI Manager reference
     UPROPERTY()
     UWUIManager* UIManager;
+
 };

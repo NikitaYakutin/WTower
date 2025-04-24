@@ -6,6 +6,7 @@
 
 #include "WTowerGameInstance.generated.h"
 
+
 /**
  * Game Instance for managing save data and settings across level transitions
  */
@@ -92,4 +93,6 @@ private:
 
     // Save slot name
     FString SaveSlotName;
+    // В WTowerGameInstance.h добавить:
+
 };

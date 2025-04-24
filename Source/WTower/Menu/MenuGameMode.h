@@ -1,13 +1,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MenuWidget/WSettingsMenuWidget.h"
+#include "MenuWidget/WPauseMenuWidget.h"
+#include "MenuWidget/WVictoryScreenWidget.h"
+#include "MenuWidget/WDefeatMenuWidget.h"
+#include <WTower/WTowerHUDWidget.h>
 #include "GameFramework/GameModeBase.h"
+#include "MenuWidget/WMainMenuWidget.h"
 #include "MenuGameMode.generated.h"
+
+
+
 
 class UWUIManager;
 
 /**
- * GameMode для управления всеми меню
+ * GameMode for managing all menus
  */
 UCLASS()
 class WTOWER_API AMenuGameMode : public AGameModeBase
@@ -17,36 +26,34 @@ class WTOWER_API AMenuGameMode : public AGameModeBase
 public:
     AMenuGameMode();
 
-    // Инициализация игры
+    // Game initialization
     virtual void BeginPlay() override;
 
-    // Методы для работы с меню
+    // Menu management methods
     UFUNCTION(BlueprintCallable, Category = "UI")
     void CloseCurrentMenu();
 
     UFUNCTION(BlueprintCallable, Category = "UI")
     void ReturnToPreviousMenu();
 
-    // Получить UIManager
-    UFUNCTION(BlueprintPure, Category = "UI")
-    UWUIManager* GetUIManager() const { return UIManager; }
-    // Классы виджетов для UI
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<class UWMainMenuWidget> MainMenuWidgetClass;
-
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<class UWPauseMenuWidget> PauseMenuWidgetClass;
-
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<class UWSettingsMenuWidget> SettingsMenuWidgetClass;
-
-    UPROPERTY(EditDefaultsOnly, Category = "UI|Widgets")
-    TSubclassOf<class UWVictoryScreenWidget> VictoryScreenWidgetClass;
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<UWMainMenuWidget> MainMenuWidgetClass;
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<UWSettingsMenuWidget> SettingsMenuWidgetClass;
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<UWPauseMenuWidget> PauseMenuWidgetClass;
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<UWVictoryScreenWidget> VictoryScreenWidgetClass;
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<UWDefeatMenuWidget> DefeatMenuWidgetClass;
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    TSubclassOf<UWTowerHUDWidget> HUDWidgetClass;
+    
 private:
-    // В вашем MenuGameMode.h добавьте:
     UPROPERTY(EditDefaultsOnly, Category = "UI")
     TSubclassOf<UWUIManager> UIManagerClass;
-    // Менеджер пользовательского интерфейса
+    
+    // UI Manager
     UPROPERTY()
     UWUIManager* UIManager;
 };
