@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "../WTowerHUDWidget.h"
 #include "../WTowerGameInstance.h"
+#include <WTower/Audio/WAudioManagerActor.h>
 
 UWUIManager::UWUIManager()
 {
@@ -63,10 +64,16 @@ void UWUIManager::ShowMenu(EWMenuType MenuType, const FString& Param)
     {
         MenuHistory.Add(CurrentMenuType);
     }
-    
+    // Запоминаем предыдущий тип меню
+    //EWMenuType PreviousMenuType = CurrentMenuType;
     // Hide current menu
     CloseCurrentMenu();
-    
+    // Определяем, является ли это переходом между меню (а не входом или выходом из игры)
+    //bool bIsMenuToMenuTransition = (PreviousMenuType == EWMenuType::Main && MenuType == EWMenuType::Settings) ||
+    //    (PreviousMenuType == EWMenuType::Settings && MenuType == EWMenuType::Main) ||
+    //    (PreviousMenuType == EWMenuType::Pause && MenuType == EWMenuType::Settings) ||
+    //    (PreviousMenuType == EWMenuType::Settings && MenuType == EWMenuType::Pause);
+
     // Show new menu based on type
     switch (MenuType)
     {
@@ -104,8 +111,9 @@ void UWUIManager::ShowMenu(EWMenuType MenuType, const FString& Param)
                     PlayerController->SetInputMode(InputMode);
                     PlayerController->bShowMouseCursor = true;
                     
-                    // Pause the game
-                    SetGamePaused(true);
+
+                        SetGamePaused(true);
+                    
                 }
             }
             break;
@@ -125,7 +133,9 @@ void UWUIManager::ShowMenu(EWMenuType MenuType, const FString& Param)
                     FInputModeUIOnly InputMode;
                     PlayerController->SetInputMode(InputMode);
                     PlayerController->bShowMouseCursor = true;
-                    SetGamePaused(true);
+
+                        SetGamePaused(true);
+                    
                 }
             }
             break;
@@ -295,6 +305,7 @@ void UWUIManager::TogglePauseMenu()
     // If pause menu is active, close it
     if (CurrentMenuType == EWMenuType::Pause)
     {
+
         CloseCurrentMenu();
         
         // Show HUD if it was hidden
@@ -315,6 +326,14 @@ void UWUIManager::TogglePauseMenu()
     }
     else
     {
+        AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+        if (AudioManager)
+        {
+
+
+            AudioManager->PlaySound2D(AudioManager->MenuMusic);
+
+        }
         // Show pause menu
         ShowMenu(EWMenuType::Pause);
     }

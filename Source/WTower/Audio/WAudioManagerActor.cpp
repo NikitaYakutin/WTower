@@ -5,6 +5,7 @@
 
 
 
+
 AWAudioManagerActor::AWAudioManagerActor()
 {
     PrimaryActorTick.bCanEverTick = false;
@@ -65,6 +66,7 @@ void AWAudioManagerActor::StopMusic()
 
 void AWAudioManagerActor::PlayMenuMusic()
 {
+
     PlayMusic(MenuMusic);
 }
 
@@ -73,14 +75,52 @@ void AWAudioManagerActor::PlayGameplayMusic()
     PlayMusic(GameplayMusic);
 }
 
+// Упрощенная реализация PlaySound2D для музыки меню
 void AWAudioManagerActor::PlaySound2D(USoundBase* Sound)
 {
-    if (Sound && !bMuteAudio)
+    if (!Sound)
     {
-        float FinalVolume = MasterVolume * SFXVolume;
-        UGameplayStatics::PlaySound2D(this, Sound, FinalVolume);
+        return;
+    }
+
+    // Рассчитываем громкость в зависимости от настроек
+    float FinalVolume = bMuteAudio ? 0.0f : (MasterVolume * MusicVolume);
+
+    // Если уже есть активная музыка меню, останавливаем её
+    if (MenuMusicComponent && MenuMusicComponent->IsValidLowLevel())
+    {
+        MenuMusicComponent->Stop();
+    }
+
+    // Создаем новый аудио компонент для музыки меню
+    MenuMusicComponent = UGameplayStatics::CreateSound2D(this, Sound, FinalVolume);
+
+    if (MenuMusicComponent)
+    {
+        MenuMusicComponent->Play();
+        UE_LOG(LogTemp, Log, TEXT("Playing menu music: %s with volume: %f"), *Sound->GetName(), FinalVolume);
     }
 }
+
+// Метод для остановки музыки меню
+void AWAudioManagerActor::StopMenuMusic()
+{
+    if (MenuMusicComponent && MenuMusicComponent->IsValidLowLevel() && MenuMusicComponent->IsPlaying())
+    {
+        MenuMusicComponent->Stop();
+        UE_LOG(LogTemp, Log, TEXT("Stopped menu music"));
+    }
+
+    // Очищаем указатель
+    MenuMusicComponent = nullptr;
+}
+
+// Метод для проверки, играет ли музыка меню
+bool AWAudioManagerActor::IsMenuMusicPlaying() const
+{
+    return MenuMusicComponent && MenuMusicComponent->IsValidLowLevel() && MenuMusicComponent->IsPlaying();
+}
+
 
 void AWAudioManagerActor::PlaySoundAtLocation(USoundBase* Sound, FVector Location)
 {
@@ -92,12 +132,20 @@ void AWAudioManagerActor::PlaySoundAtLocation(USoundBase* Sound, FVector Locatio
 }
 
 
+// Обновите метод UpdateVolumes, чтобы музыка меню также обновлялась
 void AWAudioManagerActor::UpdateVolumes()
 {
     if (MusicComponent)
     {
         float FinalVolume = bMuteAudio ? 0.0f : (MasterVolume * MusicVolume);
         MusicComponent->SetVolumeMultiplier(FinalVolume);
+    }
+
+    // Обновляем громкость музыки меню, если она играет
+    if (MenuMusicComponent && MenuMusicComponent->IsValidLowLevel() && MenuMusicComponent->IsPlaying())
+    {
+        float FinalVolume = bMuteAudio ? 0.0f : (MasterVolume * MusicVolume);
+        MenuMusicComponent->SetVolumeMultiplier(FinalVolume);
     }
 }
 

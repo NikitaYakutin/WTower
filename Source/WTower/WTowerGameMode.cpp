@@ -31,7 +31,7 @@ AWTowerGameMode::AWTowerGameMode()
 
 
     // Настройки по умолчанию
-    GameTimeLimit = 180.0f; // 3 минутs по умолчанию
+    GameTimeLimit = 60.0f; // 3 минутs по умолчанию
     MinimumSafeHeight = -1000.0f;
     bGameEnded = false;
 
@@ -240,6 +240,14 @@ void AWTowerGameMode::EndGameWithDefeat(FString Reason)
     UpdateBestScoreAndTime();
     UE_LOG(LogTemp, Log, TEXT("WTowerGameMode: Game ended with DEFEAT. Reason: %s"), *Reason);
 
+        AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+        if (AudioManager)
+        {
+
+            AudioManager->PlaySound2D(AudioManager->DefeatSound);
+
+        }
+    
     // Show defeat screen
     AWTowerPlayerController* PC = Cast<AWTowerPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
     if (PC && PC->GetUIManager())

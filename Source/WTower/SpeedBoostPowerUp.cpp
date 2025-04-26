@@ -3,6 +3,7 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Audio/WAudioManagerActor.h"
 
 ASpeedBoostPowerUp::ASpeedBoostPowerUp()
 {
@@ -48,15 +49,24 @@ void ASpeedBoostPowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
         );
     }
 
-    // Сохраняем позицию и звук для использования в лямбде
+    // Сохраняем позицию для использования в лямбде
     FVector EffectLocation = GetActorLocation();
-    USoundBase* SoundToPlay = ExpireSound; // Новая строка
+    USoundBase* SoundToPlay = ExpireSound; // Сохраняем звук для использования в лямбде
+
+    // Получаем ссылку на аудио менеджер
+    AWAudioManagerActor* AudioManager = nullptr;
+    TArray<AActor*> AudioManagers;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWAudioManagerActor::StaticClass(), AudioManagers);
+    if (AudioManagers.Num() > 0)
+    {
+        AudioManager = Cast<AWAudioManagerActor>(AudioManagers[0]);
+    }
 
     // Через определенное время восстанавливаем исходное значение
     FTimerHandle TimerHandle;
     FTimerDelegate TimerDelegate;
 
-    TimerDelegate.BindLambda([MovementComp, OriginalSpeed, SpeedEffect, Character, SoundToPlay, EffectLocation]() {
+    TimerDelegate.BindLambda([MovementComp, OriginalSpeed, SpeedEffect, Character, SoundToPlay, EffectLocation, AudioManager]() {
         // Восстанавливаем исходное значение
         MovementComp->MaxWalkSpeed = OriginalSpeed;
 
@@ -66,16 +76,24 @@ void ASpeedBoostPowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
             SpeedEffect->DestroyComponent();
         }
 
-        // Воспроизводим звук окончания эффекта
+        // Воспроизводим звук окончания эффекта через аудио менеджер
         if (SoundToPlay && Character && Character->IsValidLowLevel())
         {
-            UGameplayStatics::PlaySoundAtLocation(
-                Character,    // WorldContextObject
-                SoundToPlay,  // Звук
-                EffectLocation, // Позиция
-                1.0f,         // Громкость
-                1.0f          // Высота звука
-            );
+            if (AudioManager)
+            {
+                AudioManager->PlaySoundAtLocation(SoundToPlay, EffectLocation);
+            }
+            else
+            {
+                // Запасной вариант, если аудио менеджер не доступен
+                UGameplayStatics::PlaySoundAtLocation(
+                    Character,
+                    SoundToPlay,
+                    EffectLocation,
+                    1.0f,
+                    1.0f
+                );
+            }
         }
         });
 

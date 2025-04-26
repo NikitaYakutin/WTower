@@ -2,16 +2,21 @@
 #include "Kismet/GameplayStatics.h"
 #include "../WUIManager.h"
 #include <WTower/WTowerPlayerController.h>
+#include <WTower/Audio/WAudioManagerActor.h>
 
 void UWPauseMenuWidget::InitializeMenu()
 {
     Super::InitializeMenu();
+
+
 }
 
 void UWPauseMenuWidget::OnResumeClicked()
 {
     if (UIManager)
     {
+        AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+        AudioManager->StopMenuMusic();
         UIManager->CloseCurrentMenu();
         UIManager->ShowHUD();
     }

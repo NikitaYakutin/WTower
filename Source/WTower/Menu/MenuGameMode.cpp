@@ -21,7 +21,7 @@ void AMenuGameMode::BeginPlay()
     {
 
 
-        AudioManager->PlayMenuMusic();
+        AudioManager->PlaySound2D(AudioManager->MenuMusic);
 
     }
 

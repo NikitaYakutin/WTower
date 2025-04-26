@@ -1,4 +1,4 @@
-#include "WMainMenuWidget.h"
+﻿#include "WMainMenuWidget.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "../../WTowerGameInstance.h"
@@ -7,21 +7,46 @@
 void UWMainMenuWidget::InitializeMenu()
 {
     Super::InitializeMenu();
-    
+
     // Get game instance for best score/time
     UWTowerGameInstance* GameInstance = Cast<UWTowerGameInstance>(GetGameInstance());
-    
-    // Show best score and time if game instance is available
+
+    // Show best score and time if game instance is available and has valid records
     if (GameInstance)
     {
+        // Проверяем, есть ли у пользователя реальные результаты
+        int32 BestScore = GameInstance->GetBestScore();
+        float BestTime = GameInstance->GetBestCompletionTime();
+
         if (BestScoreText)
         {
-            BestScoreText->SetText(FText::FromString(FString::Printf(TEXT("Best Score: %d"), GameInstance->GetBestScore())));
+            // Отображаем лучший счет только если он больше нуля
+            if (BestScore > 0)
+            {
+                BestScoreText->SetText(FText::FromString(FString::Printf(TEXT("Best Score: %d"), BestScore)));
+                BestScoreText->SetVisibility(ESlateVisibility::Visible);
+            }
+            else
+            {
+                // Скрываем текстовое поле если результатов нет
+                BestScoreText->SetVisibility(ESlateVisibility::Hidden);
+            }
         }
-        
+
         if (BestTimeText)
         {
-            BestTimeText->SetText(FText::FromString(FString::Printf(TEXT("Best Time: %s"), *FormatTime(GameInstance->GetBestCompletionTime()))));
+            // Отображаем лучшее время только если оно меньше значения по умолчанию
+            // (в коде уже видно, что значение по умолчанию примерно 999990.0f)
+            if (BestTime < 999990.0f)
+            {
+                BestTimeText->SetText(FText::FromString(FString::Printf(TEXT("Best Time: %s"), *FormatTime(BestTime))));
+                BestTimeText->SetVisibility(ESlateVisibility::Visible);
+            }
+            else
+            {
+                // Скрываем текстовое поле если результатов нет
+                BestTimeText->SetVisibility(ESlateVisibility::Hidden);
+            }
         }
     }
 }

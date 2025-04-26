@@ -350,7 +350,7 @@ void APlayerCharacter::PerformJump()
         GetCharacterMovement()->Velocity = Velocity;
 
         AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
-        if (AudioManager)
+        if (AudioManager && JumpSound)
         {
             AudioManager->PlaySoundAtLocation(JumpSound,GetActorLocation());
         }

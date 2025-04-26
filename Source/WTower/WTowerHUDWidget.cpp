@@ -40,7 +40,7 @@ void UWTowerHUDWidget::UpdateStats()
     // Update time
     if (TimeText)
     {
-        TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time: %s"), *FormatTime(180.0f - (GameState->GetGameTime())))));
+        TimeText->SetText(FText::FromString(FString::Printf(TEXT("Time: %s"), *FormatTime(60.0f - (GameState->GetGameTime())))));
     }
 
     // Update current height

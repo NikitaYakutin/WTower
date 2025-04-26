@@ -46,8 +46,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Аудио")
     USoundBase* JumpSound;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Аудио")
-    USoundBase* LandSound;
+
 
 
     //----------------------------------------------------------------------------------------

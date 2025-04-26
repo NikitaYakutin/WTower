@@ -12,7 +12,11 @@ class WTOWER_API AWAudioManagerActor : public AActor
 
 public:
     AWAudioManagerActor();
+    // Остановить музыку меню
+    void StopMenuMusic();
 
+    // Проверить, играет ли музыка меню
+    bool IsMenuMusicPlaying() const;
 protected:
     virtual void BeginPlay() override;
 
@@ -35,11 +39,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sounds|Effects")
     USoundBase* ButtonClickSound;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sounds|Character")
-    USoundBase* JumpSound;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sounds|Character")
-    USoundBase* LandSound;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sounds|Effects")
+    USoundBase* DefeatSound;
 
     // Настройки громкости
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
@@ -77,6 +78,7 @@ public:
 
 private:
 
-
+    UPROPERTY()
+    UAudioComponent* MenuMusicComponent;
 
 };

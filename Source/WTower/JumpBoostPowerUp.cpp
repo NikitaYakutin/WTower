@@ -3,6 +3,7 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Audio/WAudioManagerActor.h"
 
 AJumpBoostPowerUp::AJumpBoostPowerUp()
 {
@@ -14,6 +15,7 @@ AJumpBoostPowerUp::AJumpBoostPowerUp()
 
 void AJumpBoostPowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
 {
+  
     APlayerCharacter* Character = Cast<APlayerCharacter>(Target);
     if (!Character)
     {
@@ -48,15 +50,24 @@ void AJumpBoostPowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
         );
     }
 
-    // Сохраняем позицию и звук для использования в лямбде
+    // Сохраняем позицию для использования в лямбде
     FVector EffectLocation = GetActorLocation();
-    USoundBase* SoundToPlay = ExpireSound; // Новая строка
+    USoundBase* SoundToPlay = ExpireSound; // Сохраняем звук для использования в лямбде
+
+    // Получаем ссылку на аудио менеджер
+    AWAudioManagerActor* AudioManager = nullptr;
+    TArray<AActor*> AudioManagers;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWAudioManagerActor::StaticClass(), AudioManagers);
+    if (AudioManagers.Num() > 0)
+    {
+        AudioManager = Cast<AWAudioManagerActor>(AudioManagers[0]);
+    }
 
     // Через определенное время восстанавливаем исходное значение
     FTimerHandle TimerHandle;
     FTimerDelegate TimerDelegate;
 
-    TimerDelegate.BindLambda([MovementComp, OriginalJumpZ, JumpEffect, Character, SoundToPlay, EffectLocation]() {
+    TimerDelegate.BindLambda([MovementComp, OriginalJumpZ, JumpEffect, Character, SoundToPlay, EffectLocation, AudioManager]() {
         // Восстанавливаем исходное значение
         MovementComp->JumpZVelocity = OriginalJumpZ;
 
@@ -66,16 +77,14 @@ void AJumpBoostPowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
             JumpEffect->DestroyComponent();
         }
 
-        // Воспроизводим звук окончания эффекта
+        // Воспроизводим звук окончания эффекта через аудио менеджер
         if (SoundToPlay && Character && Character->IsValidLowLevel())
         {
-            UGameplayStatics::PlaySoundAtLocation(
-                Character,    // WorldContextObject
-                SoundToPlay,  // Звук
-                EffectLocation, // Позиция
-                1.0f,         // Громкость
-                1.0f          // Высота звука
-            );
+            if (AudioManager)
+            {
+                AudioManager->PlaySoundAtLocation(SoundToPlay, EffectLocation);
+            }
+
         }
         });
 

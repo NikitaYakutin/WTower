@@ -24,16 +24,16 @@ void UWSettingsMenuWidget::InitializeMenu()
     // Initialize available resolutions
     AvailableResolutions.Empty();
     AvailableResolutions.Add(FIntPoint(1280, 720));  // 720p
-    AvailableResolutions.Add(FIntPoint(1920, 1080)); // 1080p
-    AvailableResolutions.Add(FIntPoint(2560, 1440)); // 1440p
-    AvailableResolutions.Add(FIntPoint(3840, 2160)); // 4K
+    AvailableResolutions.Add(FIntPoint(1600, 900));  // 900p
+    AvailableResolutions.Add(FIntPoint(1920, 1080)); // 1080p (FullHD)
+
     
     // Get current settings
     CurrentMasterVolume = GameInstanceRef->GetMasterVolume();
     CurrentMusicVolume = GameInstanceRef->GetMusicVolume();
     CurrentSFXVolume = GameInstanceRef->GetSFXVolume();
     CurrentResolution = GameInstanceRef->GetWindowSize();
-    bCurrentFullscreen = GameInstanceRef->IsFullscreen();
+
     
     // Setup UI components if they exist
     if (MasterVolumeSlider)
@@ -72,11 +72,7 @@ void UWSettingsMenuWidget::InitializeMenu()
         ResolutionComboBox->SetSelectedIndex(SelectedIndex);
     }
     
-    // Setup fullscreen checkbox
-    if (FullscreenCheckBox)
-    {
-        FullscreenCheckBox->SetCheckedState(bCurrentFullscreen ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
-    }
+
 }
 // ???????? ???? ????? ??? ????????? ????????? ????? NativeConstruct
 void UWSettingsMenuWidget::NativeConstruct()
@@ -107,10 +103,7 @@ void UWSettingsMenuWidget::NativeConstruct()
         ResolutionComboBox->OnSelectionChanged.AddDynamic(this, &UWSettingsMenuWidget::OnResolutionSelected);
     }
 
-    if (FullscreenCheckBox)
-    {
-        FullscreenCheckBox->OnCheckStateChanged.AddDynamic(this, &UWSettingsMenuWidget::OnFullscreenCheckBoxChanged);
-    }
+
 
 
     // ????? ????? ?????? ????? GetWidgetFromName, ???? ? ??? ??? ????????? meta = (BindWidget)
@@ -144,7 +137,7 @@ void UWSettingsMenuWidget::ApplySettings()
     GameInstanceRef->SetMusicVolume(CurrentMusicVolume);
     GameInstanceRef->SetSFXVolume(CurrentSFXVolume);
     GameInstanceRef->SetWindowSize(CurrentResolution);
-    GameInstanceRef->SetFullscreen(bCurrentFullscreen);
+
     
     // Apply immediately
     GameInstanceRef->ApplyAudioSettings();
@@ -171,7 +164,7 @@ void UWSettingsMenuWidget::ResetToDefaults()
     CurrentMusicVolume = 0.7f;
     CurrentSFXVolume = 1.0f;
     CurrentResolution = FIntPoint(1280, 720);
-    bCurrentFullscreen = false;
+
     
     // Update UI
     if (MasterVolumeSlider)
@@ -194,10 +187,7 @@ void UWSettingsMenuWidget::ResetToDefaults()
         ResolutionComboBox->SetSelectedIndex(0); // 720p is typically first
     }
     
-    if (FullscreenCheckBox)
-    {
-        FullscreenCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
-    }
+
     
     // Don't apply yet - user needs to click Apply
 }
@@ -222,10 +212,7 @@ void UWSettingsMenuWidget::SetWindowResolution(FIntPoint Resolution)
     CurrentResolution = Resolution;
 }
 
-void UWSettingsMenuWidget::SetFullscreenMode(bool bFullscreen)
-{
-    bCurrentFullscreen = bFullscreen;
-}
+
 
 void UWSettingsMenuWidget::OnBackButtonClicked()
 {
@@ -272,13 +259,4 @@ void UWSettingsMenuWidget::OnResolutionSelected(FString SelectedItem, ESelectInf
     }
 }
 
-
-// Обработчик для чекбокса с правильной сигнатурой
-// Replace the existing OnFullscreenCheckBoxChanged function
-void UWSettingsMenuWidget::OnFullscreenCheckBoxChanged(bool bIsChecked)
-{
-    UE_LOG(LogTemp, Log, TEXT("OnFullscreenCheckBoxChanged called with value: %s"),
-        bIsChecked ? TEXT("Enabled") : TEXT("Disabled"));
-    SetFullscreenMode(bIsChecked);
-}
 

@@ -46,8 +46,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Settings")
     void SetWindowResolution(FIntPoint Resolution);
 
-    UFUNCTION(BlueprintCallable, Category = "Settings")
-    void SetFullscreenMode(bool bFullscreen);
 
     // Add missing function declarations
     UFUNCTION(BlueprintCallable, Category = "Settings")
@@ -56,9 +54,7 @@ public:
     // Override NativeConstruct for delegate setup
     virtual void NativeConstruct() override;
 
-    // Fixed signature for the checkbox callback
-    UFUNCTION()
-    void OnFullscreenCheckBoxChanged(bool bIsChecked);
+
 
 protected:
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Settings")
@@ -73,8 +69,7 @@ protected:
     UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Settings")
     class UComboBoxString* ResolutionComboBox;
 
-    UPROPERTY(BlueprintReadOnly, meta = (BindWidget), Category = "Settings")
-    class UCheckBox* FullscreenCheckBox;
+
 
     // Cached game instance reference
     UPROPERTY()
@@ -85,7 +80,7 @@ protected:
     float CurrentMusicVolume;
     float CurrentSFXVolume;
     FIntPoint CurrentResolution;
-    bool bCurrentFullscreen;
+
 
     // Common window resolutions
     TArray<FIntPoint> AvailableResolutions;

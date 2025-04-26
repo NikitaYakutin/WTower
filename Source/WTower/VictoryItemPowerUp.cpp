@@ -3,6 +3,7 @@
 #include "PlayerCharacter.h"
 #include "WTowerGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Audio/WAudioManagerActor.h"
 
 AVictoryItemPowerUp::AVictoryItemPowerUp()
 {
@@ -32,7 +33,14 @@ void AVictoryItemPowerUp::ApplyPowerUpEffect_Implementation(AActor* Target)
     // Воспроизводим звук победы, если задан
     if (VictorySound)
     {
-        UGameplayStatics::PlaySound2D(Character->GetWorld(), VictorySound);
+        AWAudioManagerActor* AudioManager = Cast<AWAudioManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AWAudioManagerActor::StaticClass()));
+        if (AudioManager)
+        {
+
+
+            AudioManager->PlaySoundAtLocation(VictorySound,GetActorLocation());
+
+        }
     }
 
     // Создаем эффект победы, если он определен
